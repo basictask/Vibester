@@ -8,20 +8,15 @@ class VibesterConfig:
 
     pages_config = pd.DataFrame(
         index=[
-            "play",
-            "generate",
-            "filter",
+            "/play",
+            "/generate",
+            "/filter",
         ],
         data={
             "icon": [
                 "ion:musical-notes",
                 "ion:sparkles",
                 "ion:filter",
-            ],
-            "pathname": [
-                "/play",
-                "/generate",
-                "/filter",
             ],
             "layout": [
                 pages.play.layout.layout,
