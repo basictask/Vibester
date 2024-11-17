@@ -1,9 +1,17 @@
 import dash
+from config import VibesterConfig
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
-from config import VibesterConfig
+from components.buttons import button_big
 from dash import Input, Output, dcc, html, no_update, callback
 
+from pages.play.layout import get_layout as get_layout_play
+from pages.filter.layout import get_layout as get_layout_filter
+from pages.generate.layout import get_layout as get_layout_generate
+
+from pages.play.callbacks import register_callbacks as register_callbacks_play
+from pages.filter.callbacks import register_callbacks as register_callbacks_filter
+from pages.generate.callbacks import register_callbacks as register_callbacks_generate
 
 # Instantiation
 app = dash.Dash(__name__)
@@ -16,10 +24,12 @@ app.layout = dmc.MantineProvider(
         style={"padding": "100px", "backgroundColor": "#242424"},
         children=[
             dmc.Center(dmc.Title("Vibester", order=1)),
-            html.Div(
-                id={"name": "content", "type": "div", "page": "index"},
-                style={"padding": "100px", "backgroundColor": "#242424"},
-                children=[]
+            dmc.Center(
+                html.Div(
+                    id={"name": "content", "type": "div", "page": "index"},
+                    style={"padding": "100px", "backgroundColor": "#242424"},
+                    children=[]
+                )
             ),
             dcc.Location(id={"name": "url", "type": "location", "page": "index"}, refresh=False)
         ]
@@ -39,20 +49,14 @@ def get_layout() -> html.Div:
                 dmc.GridCol(
                     span=12,
                     children=[
-                        dmc.Button(
-                            children=DashIconify(
-                                icon=VibesterConfig.pages_config.loc[idx, "icon"],
-                                width=100
-                            ),
-                            id={"name": idx, "type": "button", "page": "index"},
-                            variant="gradient",
-                            gradient=VibesterConfig.mantine_gradient,
-                            style={
-                                "height": f"{VibesterConfig.ui_scale}px",
-                                "width": f"{VibesterConfig.ui_scale}px",
-                                "display": "block",
-                                "margin": "0 auto"
-                            },
+                        button_big(
+                            name=idx,
+                            children=[
+                                DashIconify(
+                                    icon=VibesterConfig.pages_config.loc[idx, "icon"],
+                                    width=100
+                                )
+                            ]
                         )
                     ]
                 ) for idx in VibesterConfig.pages_config.index
@@ -90,16 +94,24 @@ def register_callbacks():
     )
     def update_content(pathname: str) -> html.Div:
         """
-        Updates the layout of the main page based on the buttons clicked
+        Updates the layout of the main page based on the buttons clicked in the main menu
         """
-        if pathname in VibesterConfig.pages_config.index:
-            return VibesterConfig.pages_config.loc[pathname, "layout"]  # Layout for specific page
-        return get_layout()  # Layout for home page
+        if pathname == "/play":
+            return get_layout_play()
+        elif pathname == "/filter":
+            return get_layout_filter()
+        elif pathname == "/generate":
+            return get_layout_generate()
+        else:
+            return get_layout()
 
 
+# Callback registration from all the pages
 register_callbacks()
-
+register_callbacks_play()
+register_callbacks_filter()
+register_callbacks_generate()
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(host="0.0.0.0", debug=True)
     i = 1
