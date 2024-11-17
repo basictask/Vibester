@@ -30,20 +30,17 @@ def get_layout() -> html.Div:
                         children=[
                             dmc.Center(
                                 html.Div(
-                                    style={"width": f"{2*VibesterConfig.ui_scale}px"},
+                                    style={"width": f"{2 * VibesterConfig.ui_scale}px"},
                                     children=[
                                         dag.AgGrid(
                                             id="example-grid",
                                             className="ag-theme-alpine-dark",
                                             columnSize="responsiveSizeToFit",
                                             columnDefs=[
-                                                {"headerName": "Column 1", "field": "col1"},
-                                                {"headerName": "Column 2", "field": "col2"},
+                                                {"headerName": x.capitalize(), "field": x}
+                                                for x in VibesterConfig.generate_table_cols
                                             ],
-                                            rowData=[
-                                                {"col1": "Value 1", "col2": "Value 2"},
-                                                {"col1": "Value 3", "col2": "Value 4"},
-                                            ],
+                                            rowData=[],
                                             defaultColDef={"sortable": True, "filter": True, "resizable": True},
                                         )
                                     ]

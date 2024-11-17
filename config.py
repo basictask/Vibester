@@ -19,3 +19,5 @@ class VibesterConfig:
 
     ui_scale = 200
     mantine_gradient = {"from": "teal", "to": "lime", "deg": 105}
+
+    generate_table_cols = ["filename" "artist" "title" "year" "genre" "md5"]
