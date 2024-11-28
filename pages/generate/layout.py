@@ -1,4 +1,4 @@
-from dash import html
+from dash import html, dcc
 import dash_ag_grid as dag
 from config import VibesterConfig
 from dash_iconify import DashIconify
@@ -10,7 +10,7 @@ def get_layout() -> html.Div:
     return html.Div(
         children=[
             dmc.Grid(
-                gutter="100px",
+                # gutter="0px",
                 justify="center",
                 align="center",
                 children=[
@@ -30,18 +30,20 @@ def get_layout() -> html.Div:
                         children=[
                             dmc.Center(
                                 html.Div(
-                                    style={"width": f"{2 * VibesterConfig.ui_scale}px"},
+                                    style={"width": f"{2.5 * VibesterConfig.ui_scale}px", "padding": "100px 0"},
                                     children=[
-                                        dag.AgGrid(
-                                            id="example-grid",
-                                            className="ag-theme-alpine-dark",
-                                            columnSize="responsiveSizeToFit",
-                                            columnDefs=[
-                                                {"headerName": x.capitalize(), "field": x}
-                                                for x in VibesterConfig.generate_table_cols
-                                            ],
-                                            rowData=[],
-                                            defaultColDef={"sortable": True, "filter": True, "resizable": True},
+                                        dcc.Loading(
+                                            dag.AgGrid(
+                                                id={"name": "music_table", "type": "table", "page": "index"},
+                                                className="ag-theme-alpine-dark",
+                                                columnSize="responsiveSizeToFit",
+                                                columnDefs=[
+                                                    {"headerName": x.capitalize(), "field": x}
+                                                    for x in VibesterConfig.generate_table_cols
+                                                ],
+                                                rowData=[],
+                                                defaultColDef={"sortable": True, "filter": True, "resizable": True},
+                                            )
                                         )
                                     ]
                                 )
