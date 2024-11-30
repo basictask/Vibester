@@ -55,6 +55,7 @@ def get_layout() -> html.Div:
                         children=[
                             button_big(
                                 name="generate_run",
+                                page="generate",
                                 children=[
                                     DashIconify(
                                         icon="ion:cloud-upload-sharp",
@@ -63,7 +64,20 @@ def get_layout() -> html.Div:
                                 ]
                             )
                         ]
-                    )
+                    ),
+                    dmc.GridCol(
+                        span=12,
+                        children=[
+                            dmc.Alert(
+                                id={"name": "feedback", "type": "alert", "page": "generate"},
+                                withCloseButton=True,
+                                variant="outline",
+                                autoClose=3000,
+                                hidden=True,
+                            )
+                        ]
+                    ),
+                    dcc.Store(id={"name": "music_store", "type": "store", "page": "generate"}, data=[])
                 ]
             )
         ]

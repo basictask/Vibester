@@ -5,27 +5,27 @@ import os
 import hashlib
 import acoustid
 import musicbrainzngs
+from config import VibesterConfig
 from typing import Optional, Dict
-
 
 
 def is_music_file(filename: str) -> bool:
     """
     Decides if a single file is musical based on the extension
     """
-    for extension in [".mp3", ".mp4", ".ogg", ".wav", ".wma", ".m4a"]:
+    for extension in VibesterConfig.supported_formats:
         if filename.endswith(extension):
             return True
     return False
 
 
-def calculate_md5(input_string: str) -> str:
+def calculate_hash(input_string: str, hash_length: int = VibesterConfig.hash_length) -> str:
     """
-    Calculates the MD5 hash of a given string
+    Calculates the hash of a given string
     Used when encoding music into a QR code
     """
     md5_hash = hashlib.md5(input_string.encode())
-    return md5_hash.hexdigest()
+    return md5_hash.hexdigest()[:hash_length]
 
 
 def setup_musicbrainz_client() -> None:

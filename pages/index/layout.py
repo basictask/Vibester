@@ -20,6 +20,7 @@ def get_layout() -> html.Div:
                     children=[
                         button_big(
                             name=idx,
+                            page="index",
                             children=[
                                 DashIconify(
                                     icon=VibesterConfig.pages_config.loc[idx, "icon"],
