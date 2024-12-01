@@ -30,7 +30,7 @@ def get_layout() -> html.Div:
                         children=[
                             dmc.Center(
                                 html.Div(
-                                    style={"width": f"{2.5 * VibesterConfig.ui_scale}px", "padding": "100px 0"},
+                                    style={"width": f"{4 * VibesterConfig.ui_scale}px", "padding": "100px 0"},
                                     children=[
                                         dcc.Loading(
                                             dag.AgGrid(
@@ -72,8 +72,7 @@ def get_layout() -> html.Div:
                                 id={"name": "feedback", "type": "alert", "page": "generate"},
                                 withCloseButton=True,
                                 variant="outline",
-                                autoClose=3000,
-                                hidden=True,
+                                hide=True,
                             )
                         ]
                     ),

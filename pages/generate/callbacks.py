@@ -7,7 +7,7 @@ from config import VibesterConfig
 from typing import Dict, List, Any
 from generator.generate import generate
 from music_utils import is_music_file, calculate_hash, get_metadata
-from dash import Input, Output, State, callback, callback_context, no_update
+from dash import Input, Output, State, callback, ctx, no_update
 
 
 def register_callbacks():
@@ -22,9 +22,7 @@ def register_callbacks():
         present in both of the databases are kept. If the generate button is pressed the records in this table will
         be generated a QR code from.
         """
-        triggered = callback_context.triggered[0]["prop_id"]
-
-        if triggered == '{"name":"url","type":"location","page":"index"}.pathname':
+        if ctx.triggered[0]["prop_id"] == ".":
             # Handle the behavior when triggered by the URL
             if pathname != "/generate":
                 return no_update
@@ -66,7 +64,7 @@ def register_callbacks():
 
             return result.to_dict("records")
 
-        elif triggered == '{"name":"music_store","type":"store","page":"generate"}.data':
+        else:
             # Handle behavior when the generate button updates the content of the table
             return row_data
 
@@ -89,7 +87,7 @@ def register_callbacks():
         The function takes the content of the table on the page and renders all the currently shown rows
         into a pdf file with QR codes that can be cut up using scissors to create the cards.
         """
-        if n_clicks or not row_data or len(row_data) == 0:
+        if not n_clicks or not row_data or not row_data_virtual or len(row_data) == 0 or len(row_data_virtual) == 0:
             return no_update, no_update, no_update, no_update
 
         try:
