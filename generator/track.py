@@ -3,6 +3,7 @@ Simple class that instantiates a track object. Used while rendering SVGs of trac
 """
 import qrcode
 from typing import Dict, Tuple
+from xml.etree import ElementTree
 from qrcode.image.svg import SvgPathImage
 
 
@@ -18,12 +19,11 @@ class Track:
         """
         Render a QR code for the URL as SVG path, return also the side length
         (in SVG units, which by convention we map to mm).
-        """
-        from qrcode.compat.etree import ET  # type: ignore
 
-        # A box size of 10 means that every "pixel" in the code is 1mm, but we
-        # don't know how many pixels wide and tall the code is, so return that
-        # too, the "pixel size". Note, it is independent of the specified box
-        # size, we always have to divide by 10.
+        A box size of 10 means that every "pixel" in the code is 1mm, but we
+        don't know how many pixels wide and tall the code is, so return that
+        too, the "pixel size". Note, it is independent of the specified box.
+        size, we always have to divide by 10.
+        """
         qr = qrcode.make(self.hash, image_factory=SvgPathImage, box_size=8)
-        return ET.tostring(qr.path).decode("ascii"), qr.pixel_size / 10
+        return ElementTree.tostring(qr.path).decode("ascii"), qr.pixel_size / 10

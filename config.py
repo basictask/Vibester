@@ -38,3 +38,4 @@ class VibesterConfig:
 
     # Other settings
     hash_length = 30
+    fingerprint_conf_threshold = 0.7

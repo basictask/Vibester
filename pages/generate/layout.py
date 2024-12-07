@@ -68,11 +68,22 @@ def get_layout() -> html.Div:
                     dmc.GridCol(
                         span=12,
                         children=[
-                            dmc.Alert(
-                                id={"name": "feedback", "type": "alert", "page": "generate"},
-                                withCloseButton=True,
-                                variant="outline",
-                                hide=True,
+                            dmc.Center(
+                                html.Div(
+                                    style={"width": f"{4 * VibesterConfig.ui_scale}px", "padding": "100px 0"},
+                                    children=[
+                                        dmc.Alert(
+                                            id={"name": "feedback", "type": "alert", "page": "generate"},
+                                            variant="outline",
+                                            children="",
+                                            title="",
+                                            color="",
+                                            hide=True,
+                                            duration=3000,
+                                            withCloseButton=True,
+                                        )
+                                    ]
+                                )
                             )
                         ]
                     ),

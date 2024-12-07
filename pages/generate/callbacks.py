@@ -28,13 +28,13 @@ def register_callbacks():
                 return no_update
 
             df_db = load_db()
-            result = df_db.copy()
+            result = pd.DataFrame()
 
             # Read music from the local storage
             for filename in os.listdir(VibesterConfig.path_music):
                 filepath = os.path.abspath(os.path.join(VibesterConfig.path_music, filename))
 
-                if is_music_file(filename) and filename in df_db["filename"]:  # Music file in database
+                if is_music_file(filename) and filename in df_db["filename"].values:  # Music file in database
                     new_row = pd.DataFrame(
                         df_db[df_db["filename"] == filename]
                     ).drop_duplicates(keep="first", subset="filename")
@@ -73,6 +73,7 @@ def register_callbacks():
         Output({"name": "feedback", "type": "alert", "page": "generate"}, "color"),
         Output({"name": "feedback", "type": "alert", "page": "generate"}, "title"),
         Output({"name": "feedback", "type": "alert", "page": "generate"}, "children"),
+        Output({"name": "feedback", "type": "alert", "page": "generate"}, "hide"),
         Input({"name": "generate_run", "type": "button", "page": "generate"}, "n_clicks"),
         State({"name": "music_table", "type": "table", "page": "index"}, "rowData"),
         State({"name": "music_table", "type": "table", "page": "index"}, "virtualRowData"),
@@ -81,14 +82,14 @@ def register_callbacks():
         n_clicks: int,
         row_data: List[Dict],
         row_data_virtual: List[Dict],
-    ) -> tuple[Any | List[Dict], Any | str, Any | str, Any |str]:
+    ) -> tuple[Any | List[Dict], Any | str, Any | str, Any |str, Any | bool]:
         """
         Callback function that defines the behavior for the run button on the generate page.
         The function takes the content of the table on the page and renders all the currently shown rows
         into a pdf file with QR codes that can be cut up using scissors to create the cards.
         """
         if not n_clicks or not row_data or not row_data_virtual or len(row_data) == 0 or len(row_data_virtual) == 0:
-            return no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update
 
         try:
             # Set up the dataframes
@@ -108,7 +109,7 @@ def register_callbacks():
             generate(df=df_virtual, filename=output_filename)
 
             # Return successful message on the page
-            return df.to_dict("records"), "green", "Success", f"Records saved to {output_filename}"
+            return df.to_dict("records"), "green", "Success", f"Records saved to {output_filename}", False
 
         except Exception as e:
-            return no_update, "red", "Error", f"{e}"
+            return no_update, "red", "Error", f"{e}", False
