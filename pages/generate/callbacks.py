@@ -6,7 +6,7 @@ from loader import load_db
 from config import VibesterConfig
 from typing import Dict, List, Any
 from generator.generate import generate
-from music_utils import is_music_file, calculate_hash, get_metadata
+from pages.generate.music_utils import is_music_file, calculate_hash, get_metadata
 from dash import Input, Output, State, callback, ctx, no_update
 
 
@@ -82,7 +82,7 @@ def register_callbacks():
         n_clicks: int,
         row_data: List[Dict],
         row_data_virtual: List[Dict],
-    ) -> tuple[Any | List[Dict], Any | str, Any | str, Any |str, Any | bool]:
+    ) -> tuple[Any | List[Dict], Any | str, Any | str, Any | str, Any | bool]:
         """
         Callback function that defines the behavior for the run button on the generate page.
         The function takes the content of the table on the page and renders all the currently shown rows

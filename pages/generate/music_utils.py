@@ -8,7 +8,10 @@ import acoustid
 import musicbrainzngs
 from decorators import robust
 from config import VibesterConfig
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
+from pages.generate.spotify_token import SpotifyTokenGenerator
+
+spotify_token_generator = SpotifyTokenGenerator()
 
 
 def setup_musicbrainz_client() -> None:
@@ -42,8 +45,16 @@ def calculate_hash(input_string: str, hash_length: int = VibesterConfig.hash_len
     return md5_hash.hexdigest()[:hash_length]
 
 
+def find_smallest_year(*args: Union[str, None]) -> Optional[int]:
+    """
+    Determine the smallest year from a list of arguments. Return None if no valid years are found.
+    """
+    valid_years = [int(arg) for arg in args if isinstance(arg, str) and arg.isdigit()]
+    return min(valid_years, default=None)
+
+
 @robust
-def query_acoustid(file_path: str) -> Optional[str]:
+def get_recording_id(file_path: str) -> Optional[str]:
     """
     Uses acoustid to fingerprint a single music file and returns its recording ID
     """
@@ -116,23 +127,45 @@ def query_deezer(title: str, artist: str) -> Optional[Dict[str, str]]:
 
 
 @robust
+def query_spotify(title: str, artist: str) -> Optional[str]:
+    """
+    Search for a song on Spotify.
+    """
+    url = "https://api.spotify.com/v1/search"
+    token = spotify_token_generator.get_token()
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {"q": f"track:{title} artist:{artist}", "type": "track", "limit": 1}
+
+    response = requests.get(url, headers=headers, params=params)
+    response.raise_for_status()
+    tracks = response.json().get("tracks", {}).get("items", [])
+
+    if tracks:
+        track = tracks[0]
+        year = track["album"]["release_date"].split("-")[0]
+        return year
+    return None
+
+
+@robust
 def get_metadata(file_path: str) -> Optional[Dict[str, str]]:
     """
     Creates a fingerprint from a musical track and creates its track ID.
     """
-    recording_id = query_acoustid(file_path)
+    recording_id = get_recording_id(file_path=file_path)
 
     if recording_id:
-        metadata = query_musicbrainz(recording_id)
+        metadata = query_musicbrainz(recording_id=recording_id)
     else:
         return None
 
     if metadata["title"] and metadata["artist"]:
-        year = query_deezer(title=metadata["title"], artist=metadata["artist"])
+        year_mb = metadata["year"]
+        year_sp = query_spotify(title=metadata["title"], artist=metadata["artist"])
+        year_dz = query_deezer(title=metadata["title"], artist=metadata["artist"])
+        year = find_smallest_year(year_mb, year_dz, year_sp)
         if year:
             metadata["year"] = year
 
-    print(f"Successfully processed: {metadata}")
+    print(f"{','.join([str(metadata[x]) for x in metadata.keys()])}")
     return metadata
-
-
