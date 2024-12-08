@@ -5,6 +5,7 @@
 scratchpad.
 .env
 data/music
+data/backup
 data/
 scratchpad.py
 

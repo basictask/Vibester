@@ -12,7 +12,7 @@ from pages.index.callbacks import register_callbacks as register_callbacks_index
 from pages.filter.callbacks import register_callbacks as register_callbacks_filter
 from pages.generate.callbacks import register_callbacks as register_callbacks_generate
 
-from music_utils import setup_musicbrainz_client
+from pages.generate.music_utils import setup_musicbrainz_client
 
 
 # Instantiation
