@@ -29,8 +29,23 @@ After the installation you should be able to run fpcalc from the command line. M
 ```
 fpcalc -version
 ```
-The API requires a key to query correctly. This key is found in our .env file or you can request a new key using the Acoustid website. If you have a new key insert it into the .env file under the name API_KEY_ACOUSTID
+The API requires a key to query correctly. This key is found in our .env file or you can request a new key using the Acoustid website.
 
+### APIs
+
+The app uses services that are able to recognize a song and download its metadata. Due to the error rate in some API providers multiple endpoints are being queried each time a song has to be recognized:  
+* Acoustid: [https://acoustid.org/](https://acoustid.org/)  
+* Deezer: no registration or API key required  
+* Spotify: Create a new app on the [Spotify developer dashboard](https://developer.spotify.com/dashboard) and save the Client ID and Client Secret into the .env file.  
+
+The correct key names can be found under the `.env.template` file. Insert them there	
+
+### OpenSSL
+
+Secure tunneling is used as browsers only enable webcamera usage though HTTPS. You will have to generate a secure certificate for the Dash application to provide client browsers with. 
+
+1. Install OpenSSL
+2. Generate a key.pem and cert.pem
 
 ## Usage
 

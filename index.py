@@ -60,9 +60,8 @@ def update_content(pathname: str) -> html.Div:
         return get_layout_index()
 
 
-
 # Callback registration from all the pages
-register_callbacks_play()
+register_callbacks_play(app=app)
 register_callbacks_index()
 register_callbacks_filter()
 register_callbacks_generate()
@@ -73,5 +72,10 @@ setup_musicbrainz_client()
 
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", debug=False, dev_tools_ui=False)
+    app.run_server(
+        host="0.0.0.0",
+        debug=False,
+        dev_tools_ui=False,
+        ssl_context=("cert/cert.pem", "cert/key.pem")
+    )
     i = 1

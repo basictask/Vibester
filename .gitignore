@@ -8,6 +8,7 @@ data/music
 data/backup
 data/
 scratchpad.py
+cert
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

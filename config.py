@@ -39,3 +39,7 @@ class VibesterConfig:
     # Other settings
     hash_length = 30
     fingerprint_conf_threshold = 0.7
+
+    # Video settings
+    video_height = 480
+    video_width = 360
