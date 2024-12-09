@@ -1,7 +1,7 @@
 import pandas as pd
 
-class VibesterConfig:
 
+class VibesterConfig:
     # Multipage navigation
     pages_config = pd.DataFrame(
         index=[

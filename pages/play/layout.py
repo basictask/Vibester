@@ -27,6 +27,7 @@ def get_layout() -> html.Div:
                         children=[
                             dmc.Center(
                                 html.Div(
+                                    id={"name": "video", "type": "div", "page": "play"},
                                     children=[
                                         html.Video(
                                             id="play_video",
@@ -35,11 +36,8 @@ def get_layout() -> html.Div:
                                                 "border-radius": "15px",
                                                 "padding": "0px",
                                                 "border": "3px solid #c9c9c9",
+                                                "width": f"{2 * VibesterConfig.ui_scale}px"
                                             }
-                                        ),
-                                        html.Img(
-                                            id="play_captured_image",
-                                            style={"display": "none"}
                                         )
                                     ]
                                 )
@@ -47,7 +45,9 @@ def get_layout() -> html.Div:
                         ]
                     ),
                     dcc.Location(id={"name": "url", "type": "location", "page": "play"}, refresh=False),
-                    dcc.Store(id={"name": "image_store", "type": "store", "page": "play"}, data=[])
+                    dcc.Interval(id={"name": "sample", "type": "interval", "page": "play"}, interval=1000),
+                    dcc.Store(id={"name": "music_store", "type": "store", "page": "play"}, data=[]),
+                    dcc.Store(id={"name": "frame_store", "type": "store", "page": "play"}, data=[]),
                 ]
             )
         ]

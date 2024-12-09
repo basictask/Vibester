@@ -1,22 +1,24 @@
 import dash
+from config import VibesterConfig
+from flask import send_from_directory
 import dash_mantine_components as dmc
 from dash import Input, Output, dcc, html
 
 from pages.play.layout import get_layout as get_layout_play
 from pages.index.layout import get_layout as get_layout_index
 from pages.filter.layout import get_layout as get_layout_filter
+from pages.generate.music_utils import setup_musicbrainz_client
 from pages.generate.layout import get_layout as get_layout_generate
-
 from pages.play.callbacks import register_callbacks as register_callbacks_play
 from pages.index.callbacks import register_callbacks as register_callbacks_index
 from pages.filter.callbacks import register_callbacks as register_callbacks_filter
 from pages.generate.callbacks import register_callbacks as register_callbacks_generate
 
-from pages.generate.music_utils import setup_musicbrainz_client
-
 
 # Instantiation
 app = dash.Dash(__name__)
+server = app.server
+
 
 # Master Layout
 app.layout = dmc.MantineProvider(
@@ -71,6 +73,12 @@ register_callbacks_generate()
 setup_musicbrainz_client()
 
 
+# Define a Flask route to serve music files
+@server.route("/music/<filename>")
+def serve_music(filename):
+    return send_from_directory(VibesterConfig.path_music, filename)
+
+
 if __name__ == "__main__":
     app.run_server(
         host="0.0.0.0",
@@ -78,4 +86,3 @@ if __name__ == "__main__":
         dev_tools_ui=False,
         ssl_context=("cert/cert.pem", "cert/key.pem")
     )
-    i = 1
