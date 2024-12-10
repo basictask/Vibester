@@ -3,7 +3,11 @@ import base64
 import numpy as np
 import pandas as pd
 from loader import load_db
-from typing import List, Dict, Optional
+from typing import List, Dict
+from config import VibesterConfig
+from dash_iconify import DashIconify
+import dash_mantine_components as dmc
+from components.buttons import button_big
 from dash import Dash, Input, Output, State, callback, no_update, html
 
 
@@ -100,7 +104,7 @@ def register_callbacks(app: Dash):
         State({"name": "url", "type": "location", "page": "play"}, "pathname"),
         State({"name": "music_store", "type": "store", "page": "play"}, "data")
     )
-    def scan_image(image_b64: str, pathname: str, music_store_data: List[Dict]) -> Optional[html.Audio] | html.Div:
+    def scan_image(image_b64: str, pathname: str, music_store_data: List[Dict]) -> List | dmc.Alert:
         """
         Scans webcamera image for QR codes. The camera image is provided as a base64 encoded string.
         """
@@ -114,27 +118,44 @@ def register_callbacks(app: Dash):
             # Convert to a numpy array and decode into an image
             nparr = np.frombuffer(image_data, np.uint8)
             image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            # Scan the image_b64 for QR codes
+            detector = cv2.QRCodeDetector()
+            data, bbox, _ = detector.detectAndDecode(image)
+
+            # If there is a QR code decode and print it
+            if data:
+                # If a QR code is detected, check it against music_store_data
+                df_music = pd.DataFrame(music_store_data)
+                matched_items = df_music.query(f"hash == '{data}'")
+                if len(matched_items) > 0:
+                    # If a match is found, start playing music
+                    filename = matched_items.iloc[0, :]["filename"]
+                    return [
+                        html.Audio(
+                            src=f"/music/{filename}",
+                            controls=True,
+                            autoPlay=True,
+                            loop=True,
+                            style={"display": "none"}
+                        ),
+                        button_big(
+                            name="stop_music",
+                            page="play",
+                            children=[
+                                DashIconify(
+                                    icon=VibesterConfig.pages_config.loc["/play", "icon"],
+                                    width=100
+                                )
+                            ]
+                        )
+                    ]
+            return no_update
+
         except Exception as e:
-            print(f"Error decoding image: {e}")
-            return html.Div("Error processing image", style={"color": "red"})
-
-        # Scan the image_b64 for QR codes
-        detector = cv2.QRCodeDetector()
-        data, bbox, _ = detector.detectAndDecode(image)
-
-        # If there is a QR code decode and print it
-        if data:
-            # If a QR code is detected, check it against `music_store_data`
-            df_music = pd.DataFrame(music_store_data)
-            matched_items = df_music.query(f"hash == '{data}'")
-
-            if len(matched_items) > 0:
-                # If a match is found, start playing music
-                filename = matched_items.iloc[0, :]["filename"]
-                return html.Audio(
-                    src=f"/music/{filename}",
-                    controls=True,
-                    autoPlay=True,
-                    loop=True,
-                )
-        return no_update
+            return dmc.Alert(
+                children=f"{e}",
+                title="Error processing image",
+                withCloseButton=True,
+                variant="outline",
+                color="red",
+            )
