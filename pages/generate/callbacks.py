@@ -6,8 +6,8 @@ from loader import load_db
 from config import VibesterConfig
 from typing import Dict, List, Any
 from generator.generate import generate
-from pages.generate.music_utils import is_music_file, calculate_hash, get_metadata
 from dash import Input, Output, State, callback, ctx, no_update
+from pages.generate.music_utils import is_music_file, calculate_hash, get_metadata
 
 
 def register_callbacks():
