@@ -1,6 +1,8 @@
 from dash import html, dcc
 from config import VibesterConfig
+from dash_iconify import DashIconify
 import dash_mantine_components as dmc
+from components.buttons import button_big
 
 
 def get_layout() -> html.Div:
@@ -38,6 +40,25 @@ def get_layout() -> html.Div:
                                                 "border": "3px solid #c9c9c9",
                                                 "width": f"{2 * VibesterConfig.ui_scale}px"
                                             }
+                                        ),
+                                        html.Audio(
+                                            id={"name": "music", "type": "audio", "page": "play"},
+                                            src=f"",
+                                            controls=True,
+                                            autoPlay=True,
+                                            loop=True,
+                                            style={"display": "none"}
+                                        ),
+                                        button_big(
+                                            name="stop_music",
+                                            page="play",
+                                            children=[
+                                                DashIconify(
+                                                    icon=VibesterConfig.pages_config.loc["/play", "icon"],
+                                                    width=100
+                                                )
+                                            ],
+                                            style={"display": "none"}
                                         )
                                     ]
                                 )

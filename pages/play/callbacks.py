@@ -3,12 +3,9 @@ import base64
 import numpy as np
 import pandas as pd
 from loader import load_db
-from typing import List, Dict
 from config import VibesterConfig
-from dash_iconify import DashIconify
-import dash_mantine_components as dmc
-from components.buttons import button_big
-from dash import Dash, Input, Output, State, callback, no_update, html
+from typing import List, Dict, Tuple
+from dash import Dash, Input, Output, State, callback, no_update, ctx
 
 
 def register_callbacks(app: Dash):
@@ -99,63 +96,65 @@ def register_callbacks(app: Dash):
     )
 
     @callback(
-        Output({"name": "video", "type": "div", "page": "play"}, "children"),
+        Output("play_video", "style"),
+        Output({"name": "music", "type": "audio", "page": "play"}, "src"),
+        Output({"name": "stop_music", "type": "button", "page": "play"}, "style"),
         Input({"name": "frame_store", "type": "store", "page": "play"}, "data"),
+        Input({"name": "stop_music", "type": "button", "page": "play"}, "n_clicks"),
         State({"name": "url", "type": "location", "page": "play"}, "pathname"),
         State({"name": "music_store", "type": "store", "page": "play"}, "data")
     )
-    def scan_image(image_b64: str, pathname: str, music_store_data: List[Dict]) -> List | dmc.Alert:
+    def scan_image(
+        image_b64: str,
+        n_clicks: int,
+        pathname: str,
+        music_store_data: List[Dict]
+    ) -> Tuple[Dict, str, Dict]:
         """
         Scans webcamera image for QR codes. The camera image is provided as a base64 encoded string.
         """
-        if not image_b64 or pathname != "/play" or not music_store_data or len(music_store_data) == 0:
-            return no_update
+        if "frame_store" in str(ctx.triggered_id):
+            if not image_b64 or pathname != "/play" or not music_store_data or len(music_store_data) == 0:
+                return no_update, no_update, no_update
 
-        # Decode the Base64 string into an image
-        try:
-            # Extract the Base64 portion of the string (remove "data:image/png;base64,")
-            image_data = base64.b64decode(image_b64.split(",")[1])
-            # Convert to a numpy array and decode into an image
-            nparr = np.frombuffer(image_data, np.uint8)
-            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            # Scan the image_b64 for QR codes
-            detector = cv2.QRCodeDetector()
-            data, bbox, _ = detector.detectAndDecode(image)
+            # Decode the Base64 string into an image
+            try:
+                # Extract the Base64 portion of the string (remove "data:image/png;base64,")
+                image_data = base64.b64decode(image_b64.split(",")[1])
+                # Convert to a numpy array and decode into an image
+                nparr = np.frombuffer(image_data, np.uint8)
+                image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                # Scan the image_b64 for QR codes
+                detector = cv2.QRCodeDetector()
+                data, bbox, _ = detector.detectAndDecode(image)
 
-            # If there is a QR code decode and print it
-            if data:
-                # If a QR code is detected, check it against music_store_data
-                df_music = pd.DataFrame(music_store_data)
-                matched_items = df_music.query(f"hash == '{data}'")
-                if len(matched_items) > 0:
-                    # If a match is found, start playing music
-                    filename = matched_items.iloc[0, :]["filename"]
-                    return [
-                        html.Audio(
-                            src=f"/music/{filename}",
-                            controls=True,
-                            autoPlay=True,
-                            loop=True,
-                            style={"display": "none"}
-                        ),
-                        button_big(
-                            name="stop_music",
-                            page="play",
-                            children=[
-                                DashIconify(
-                                    icon=VibesterConfig.pages_config.loc["/play", "icon"],
-                                    width=100
-                                )
-                            ]
+                # If there is a QR code decode and print it
+                if data:
+                    # If a QR code is detected, check it against music_store_data
+                    df_music = pd.DataFrame(music_store_data)
+                    matched_items = df_music.query(f"hash == '{data}'")
+                    if len(matched_items) > 0:
+                        # If a match is found, start playing music
+                        filename = matched_items.iloc[0, :]["filename"]
+                        return (
+                            {"display": "none"},
+                            f"/music/{filename}",
+                            VibesterConfig.default_style_button_big,
                         )
-                    ]
-            return no_update
 
-        except Exception as e:
-            return dmc.Alert(
-                children=f"{e}",
-                title="Error processing image",
-                withCloseButton=True,
-                variant="outline",
-                color="red",
-            )
+                return no_update, no_update, no_update
+
+            except Exception as e:
+                print(e)
+
+        elif "stop_music" in str(ctx.triggered_id):
+            if not n_clicks or pathname != "/play" or not music_store_data or len(music_store_data) == 0:
+                return no_update, no_update, no_update
+
+            else:
+                # Show the webcam video, hide the button and the audio component
+                return (
+                    VibesterConfig.default_style_webcam_video,
+                    "",
+                    {"display": "none"},
+                )
