@@ -7,13 +7,13 @@ class VibesterConfig:
         index=[
             "/play",
             "/generate",
-            "/filter",
+            "/upload"
         ],
         data={
-            "icon": [
+            "icon": [  # icon set: https://icon-sets.iconify.design/ion/
                 "ion:musical-notes",
                 "ion:sparkles",
-                "ion:filter",
+                "ion:cloud-upload-sharp"
             ]
         }
     )
@@ -21,6 +21,7 @@ class VibesterConfig:
     # UI
     ui_scale = 200
     mantine_gradient = {"from": "teal", "to": "lime", "deg": 105}
+    mantine_gradient_red = {"from": "red", "to": "yellow", "deg": 45},
 
     # Fixed lists
     generate_table_cols = ["filename", "artist", "title", "year", "genre", "saved", "hash"]

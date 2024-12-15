@@ -58,7 +58,7 @@ def get_layout() -> html.Div:
                                 page="generate",
                                 children=[
                                     DashIconify(
-                                        icon="ion:cloud-upload-sharp",
+                                        icon="ion:document-text",
                                         width=100,
                                     )
                                 ]
