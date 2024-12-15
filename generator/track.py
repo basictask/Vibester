@@ -1,6 +1,3 @@
-"""
-Simple class that instantiates a track object. Used while rendering SVGs of tracks
-"""
 import qrcode
 from typing import Dict, Tuple
 from xml.etree import ElementTree

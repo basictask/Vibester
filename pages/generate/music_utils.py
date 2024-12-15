@@ -1,6 +1,3 @@
-"""
-Standalone functions that do musical calculations
-"""
 import os
 import hashlib
 import requests
@@ -74,18 +71,42 @@ def query_musicbrainz(recording_id: str) -> Dict[str, Optional[str]]:
     result = musicbrainzngs.get_recording_by_id(recording_id, includes=["artists", "releases", "tags"])
     recording = result["recording"]
 
-    title = recording["title"]
+    # Get the title of the track
+    try:
+        title = recording["title"]
+    except (KeyError, TypeError):
+        title = ""
 
-    artist = ", ".join(artist["artist"]["name"] for artist in recording["artist-credit"])
+    # Get the artist of the track
+    artists = []
+    for artist in recording["artist-credit"]:
+        try:
+            artists.append(artist["artist"]["name"])
+        except (KeyError, TypeError):
+            continue
+    artists = ", ".join(artists)
 
-    year = recording["release-list"][0].get("date", "").split("-")[0]
+    # Get the year for the track
+    try:
+        year = recording["release-list"][0].get("date", "").split("-")[0]
+    except (KeyError, TypeError):
+        year = ""
 
-    tags = []
-    for tag in recording["artist-credit"][0]["artist"]["tag-list"]:
-        tags.append(tag.get("name", ""))
-    genre = ";".join(tags)
+    # Get the genre of the artist
+    try:
+        if "tag-list" in recording["artist-credit"][0]["artist"]:
+            tags = []
+            for tag in recording["artist-credit"][0]["artist"]["tag-list"]:
+                tags.append(tag.get("name", ""))
+            genre = ";".join(tags)
+        elif "disambiguation" in recording["artist-credit"][0]["artist"]:
+            genre = recording["artist-credit"][0]["artist"]["disambiguation"]
+        else:
+            genre = ""
+    except (KeyError, TypeError):
+        genre = ""
 
-    return {"title": title, "artist": artist, "year": year, "genre": genre}
+    return {"title": title, "artist": artists, "year": year, "genre": genre}
 
 
 @robust
