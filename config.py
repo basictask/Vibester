@@ -58,3 +58,14 @@ class VibesterConfig:
         "display": "block",
         "margin": "0 auto",
     }
+    default_style_button_big_gif = {
+        "height": f"{ui_scale}px",
+        "width": f"{ui_scale}px",
+        "display": "block",
+        "margin": "0 auto",
+        "background-image": "url('/assets/dance.gif')",
+        "background-size": "cover",
+        "background-repeat": "no-repeat",
+        "background-position": "center"
+    }
+
