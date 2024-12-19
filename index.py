@@ -1,17 +1,20 @@
 import dash
+from loader import setup_folders
 from config import VibesterConfig
 from flask import send_from_directory
 import dash_mantine_components as dmc
 from dash import Input, Output, dcc, html
 
+from pages.generate.music_utils import setup_musicbrainz_client
+
 from pages.play.layout import get_layout as get_layout_play
 from pages.index.layout import get_layout as get_layout_index
-from pages.filter.layout import get_layout as get_layout_filter
-from pages.generate.music_utils import setup_musicbrainz_client
+from pages.upload.layout import get_layout as get_layout_upload
 from pages.generate.layout import get_layout as get_layout_generate
+
 from pages.play.callbacks import register_callbacks as register_callbacks_play
 from pages.index.callbacks import register_callbacks as register_callbacks_index
-from pages.filter.callbacks import register_callbacks as register_callbacks_filter
+from pages.upload.callbacks import register_callbacks as register_callbacks_upload
 from pages.generate.callbacks import register_callbacks as register_callbacks_generate
 
 
@@ -54,8 +57,8 @@ def update_content(pathname: str) -> html.Div:
     """
     if pathname == "/play":
         return get_layout_play()
-    elif pathname == "/filter":
-        return get_layout_filter()
+    elif pathname == "/upload":
+        return get_layout_upload()
     elif pathname == "/generate":
         return get_layout_generate()
     else:
@@ -65,7 +68,7 @@ def update_content(pathname: str) -> html.Div:
 # Callback registration from all the pages
 register_callbacks_play(app=app)
 register_callbacks_index()
-register_callbacks_filter()
+register_callbacks_upload()
 register_callbacks_generate()
 
 
@@ -79,10 +82,14 @@ def serve_music(filename):
     return send_from_directory(VibesterConfig.path_music, filename)
 
 
+# Setup folders that are needed for I/O operations
+setup_folders()
+
+
 if __name__ == "__main__":
     app.run_server(
         host="0.0.0.0",
         debug=False,
         dev_tools_ui=False,
-        ssl_context=("cert/cert.pem", "cert/key.pem")
+        ssl_context=(f"{VibesterConfig.path_cert}/cert.pem", f"{VibesterConfig.path_cert}/key.pem")
     )

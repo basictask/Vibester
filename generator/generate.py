@@ -1,16 +1,12 @@
-"""
-This is the main file that converts musical metadata to a timestamped pdf file that can be printed
-"""
 import os
 import tempfile
 import pandas as pd
 from typing import List
 from pathlib import Path
+from PyPDF2 import PdfMerger
 from config import VibesterConfig
 from generator.table import Table
 from generator.track import Track
-
-from PyPDF2 import PdfMerger
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
 

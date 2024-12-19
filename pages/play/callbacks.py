@@ -113,6 +113,9 @@ def register_callbacks(app: Dash):
         """
         Scans webcamera image for QR codes. The camera image is provided as a base64 encoded string.
         """
+        if pathname != "/play":
+            return no_update, no_update, no_update
+
         if "frame_store" in str(ctx.triggered_id):
             if not image_b64 or pathname != "/play" or not music_store_data or len(music_store_data) == 0:
                 return no_update, no_update, no_update
@@ -139,7 +142,9 @@ def register_callbacks(app: Dash):
                         return (
                             {"display": "none"},
                             f"/music/{filename}",
-                            VibesterConfig.default_style_button_big,
+                            VibesterConfig.default_style_button_big_gif,
+
+
                         )
 
                 return no_update, no_update, no_update

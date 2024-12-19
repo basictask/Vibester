@@ -7,13 +7,13 @@ class VibesterConfig:
         index=[
             "/play",
             "/generate",
-            "/filter",
+            "/upload"
         ],
         data={
-            "icon": [
+            "icon": [  # icon set: https://icon-sets.iconify.design/ion/
                 "ion:musical-notes",
                 "ion:sparkles",
-                "ion:filter",
+                "ion:cloud-upload-sharp"
             ]
         }
     )
@@ -21,6 +21,7 @@ class VibesterConfig:
     # UI
     ui_scale = 200
     mantine_gradient = {"from": "teal", "to": "lime", "deg": 105}
+    mantine_gradient_red = {"from": "red", "to": "yellow", "deg": 45},
 
     # Fixed lists
     generate_table_cols = ["filename", "artist", "title", "year", "genre", "saved", "hash"]
@@ -30,6 +31,7 @@ class VibesterConfig:
     path_db = "data/db.parquet"
     path_music = "data/music"
     path_output = "data/output"
+    path_cert = "cert"
 
     # PDF generation
     grid = True
@@ -57,3 +59,14 @@ class VibesterConfig:
         "display": "block",
         "margin": "0 auto",
     }
+    default_style_button_big_gif = {
+        "height": f"{ui_scale}px",
+        "width": f"{ui_scale}px",
+        "display": "block",
+        "margin": "0 auto",
+        "background-image": "url('/assets/dance.gif')",
+        "background-size": "cover",
+        "background-repeat": "no-repeat",
+        "background-position": "center"
+    }
+

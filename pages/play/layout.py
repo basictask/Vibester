@@ -3,6 +3,7 @@ from config import VibesterConfig
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
 from components.buttons import button_big
+from components.loading import loading
 
 
 def get_layout() -> html.Div:
@@ -31,6 +32,13 @@ def get_layout() -> html.Div:
                                 html.Div(
                                     id={"name": "video", "type": "div", "page": "play"},
                                     children=[
+                                        loading(
+                                            name="play_loader",
+                                            page="play",
+                                            children=[
+
+                                            ]
+                                        ),
                                         html.Video(
                                             id="play_video",
                                             autoPlay=True,
@@ -52,14 +60,9 @@ def get_layout() -> html.Div:
                                         button_big(
                                             name="stop_music",
                                             page="play",
-                                            children=[
-                                                DashIconify(
-                                                    icon=VibesterConfig.pages_config.loc["/play", "icon"],
-                                                    width=100
-                                                )
-                                            ],
                                             style={"display": "none"}
                                         )
+
                                     ]
                                 )
                             )

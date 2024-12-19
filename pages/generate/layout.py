@@ -4,6 +4,7 @@ from config import VibesterConfig
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
 from components.buttons import button_big
+from components.loading import loading
 
 
 def get_layout() -> html.Div:
@@ -32,18 +33,22 @@ def get_layout() -> html.Div:
                                 html.Div(
                                     style={"width": f"{4 * VibesterConfig.ui_scale}px", "padding": "100px 0"},
                                     children=[
-                                        dcc.Loading(
-                                            dag.AgGrid(
-                                                id={"name": "music_table", "type": "table", "page": "index"},
-                                                className="ag-theme-alpine-dark",
-                                                columnSize="responsiveSizeToFit",
-                                                columnDefs=[
-                                                    {"headerName": x.capitalize(), "field": x}
-                                                    for x in VibesterConfig.generate_table_cols
-                                                ],
-                                                rowData=[],
-                                                defaultColDef={"sortable": True, "filter": True, "resizable": True},
-                                            )
+                                        loading(
+                                            name="loader",
+                                            page="generate",
+                                            children=[
+                                                dag.AgGrid(
+                                                    id={"name": "music_table", "type": "table", "page": "index"},
+                                                    className="ag-theme-alpine-dark",
+                                                    columnSize="responsiveSizeToFit",
+                                                    columnDefs=[
+                                                        {"headerName": x.capitalize(), "field": x}
+                                                        for x in VibesterConfig.generate_table_cols
+                                                    ],
+                                                    rowData=[],
+                                                    defaultColDef={"sortable": True, "filter": True, "resizable": True},
+                                                )
+                                            ]
                                         )
                                     ]
                                 )
@@ -58,7 +63,7 @@ def get_layout() -> html.Div:
                                 page="generate",
                                 children=[
                                     DashIconify(
-                                        icon="ion:cloud-upload-sharp",
+                                        icon="ion:document-text",
                                         width=100,
                                     )
                                 ]
