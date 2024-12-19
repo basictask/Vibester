@@ -142,7 +142,9 @@ def register_callbacks(app: Dash):
                         return (
                             {"display": "none"},
                             f"/music/{filename}",
-                            VibesterConfig.default_style_button_big,
+                            VibesterConfig.default_style_button_big_gif,
+
+
                         )
 
                 return no_update, no_update, no_update
