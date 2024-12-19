@@ -31,6 +31,7 @@ class VibesterConfig:
     path_db = "data/db.parquet"
     path_music = "data/music"
     path_output = "data/output"
+    path_cert = "cert"
 
     # PDF generation
     grid = True
