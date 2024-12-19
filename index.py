@@ -1,4 +1,5 @@
 import dash
+from loader import setup_folders
 from config import VibesterConfig
 from flask import send_from_directory
 import dash_mantine_components as dmc
@@ -81,10 +82,14 @@ def serve_music(filename):
     return send_from_directory(VibesterConfig.path_music, filename)
 
 
+# Setup folders that are needed for I/O operations
+setup_folders()
+
+
 if __name__ == "__main__":
     app.run_server(
         host="0.0.0.0",
         debug=False,
         dev_tools_ui=False,
-        ssl_context=("cert/cert.pem", "cert/key.pem")
+        ssl_context=(f"{VibesterConfig.path_cert}/cert.pem", f"{VibesterConfig.path_cert}/key.pem")
     )
