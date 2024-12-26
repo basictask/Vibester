@@ -1,8 +1,11 @@
 import os
+import re
 import hashlib
 import requests
 import acoustid
 import musicbrainzngs
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3
 from decorators import robust
 from config import VibesterConfig
 from typing import Optional, Dict, Union
@@ -51,12 +54,26 @@ def find_smallest_year(*args: Union[str, None]) -> Optional[int]:
 
 
 @robust
-def get_recording_id(file_path: str) -> Optional[str]:
+def get_metadata_from_file(filepath: str) -> Dict[str, str]:
+    """
+    Extracts the metadata embedded into a mp3 file if possible
+    """
+    audio = MP3(filepath, ID3=ID3)
+    metadata = {
+        "artist": str(audio.tags.get("TPE1").text[0]) if "TPE1" in audio.tags else None,  # Artist
+        "title": str(audio.tags.get("TIT2").text[0]) if "TIT2" in audio.tags else None,  # Title
+        "year": str(audio.tags.get("TDRC").text[0]) if "TDRC" in audio.tags else None,  # Year
+    }
+    return metadata
+
+
+@robust
+def get_recording_id(filepath: str) -> Optional[str]:
     """
     Uses acoustid to fingerprint a single music file and returns its recording ID
     """
     api_key_acoustid = os.getenv("API_KEY_ACOUSTID")
-    results = acoustid.match(api_key_acoustid, file_path)
+    results = acoustid.match(api_key_acoustid, filepath)
     for score, recording_id, title, artist in results:
         if score > VibesterConfig.fingerprint_conf_threshold:
             return recording_id
@@ -169,24 +186,55 @@ def query_spotify(title: str, artist: str) -> Optional[str]:
 
 
 @robust
-def get_metadata(file_path: str) -> Optional[Dict[str, str]]:
+def get_artist_from_filepath(filepath: str) -> Optional[str]:
+    """
+    Gets the artist name from a file path.
+    Supposes that the file name is of the structure "artist - title.mp3"
+    """
+    filename = os.path.basename(filepath)
+    match = re.match(r"^(.*?) - ", filename)
+    return match.group(1) if match else None
+
+
+@robust
+def get_title_from_filepath(filepath: str) -> Optional[str]:
+    """
+    Gets the title from a file path.
+    Supposes that the file name is of the structure "artist - title.mp3"
+    """
+    filename = os.path.basename(filepath)
+    for fmt in VibesterConfig.supported_formats:
+        if filename.endswith(fmt):
+            filename = filename[:-len(fmt)]
+            return filename.split(" - ", 1)[1]  # Extract the part after " - "
+    return None
+
+
+@robust
+def get_metadata(filepath: str) -> Dict[str, str]:
     """
     Creates a fingerprint from a musical track and creates its track ID.
     """
-    recording_id = get_recording_id(file_path=file_path)
+    metadata = get_metadata_from_file(filepath=filepath)
 
-    if recording_id:
-        metadata = query_musicbrainz(recording_id=recording_id)
-    else:
-        return None
+    if not metadata["artist"] or not metadata["title"]:
+        recording_id = get_recording_id(filepath=filepath)
+        if recording_id:
+            metadata = query_musicbrainz(recording_id=recording_id)
+        else:
+            metadata["artist"] = get_artist_from_filepath(filepath)
+            metadata["title"] = get_title_from_filepath(filepath)
 
     if metadata["title"] and metadata["artist"]:
-        year_mb = metadata["year"]
+        year_mb = metadata.get("year", None)
         year_sp = query_spotify(title=metadata["title"], artist=metadata["artist"])
         year_dz = query_deezer(title=metadata["title"], artist=metadata["artist"])
         year = find_smallest_year(year_mb, year_dz, year_sp)
         if year:
             metadata["year"] = year
+    else:
+        print(f"Unsuccessful song ID for file: {filepath}")
+        return dict()
 
     print(f"{','.join([str(metadata[x]) for x in metadata.keys()])}")
     return metadata

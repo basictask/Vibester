@@ -31,7 +31,13 @@ def get_layout() -> html.Div:
                         children=[
                             dmc.Center(
                                 html.Div(
-                                    style={"width": f"{4 * VibesterConfig.ui_scale}px", "padding": "100px 0"},
+                                    style={
+                                        "width": "100%",
+                                        "padding": "100px 0",
+                                        "display": "flex",
+                                        "flexDirection": "column",
+                                        "flexGrow": 1
+                                    },
                                     children=[
                                         loading(
                                             name="loader",
@@ -42,11 +48,14 @@ def get_layout() -> html.Div:
                                                     className="ag-theme-alpine-dark",
                                                     columnSize="responsiveSizeToFit",
                                                     columnDefs=[
-                                                        {"headerName": x.capitalize(), "field": x}
+                                                        {"headerName": x.capitalize(), "field": x, "editable": True}
                                                         for x in VibesterConfig.generate_table_cols
                                                     ],
                                                     rowData=[],
                                                     defaultColDef={"sortable": True, "filter": True, "resizable": True},
+                                                    style={
+                                                        "width": "100%",
+                                                    }
                                                 )
                                             ]
                                         )

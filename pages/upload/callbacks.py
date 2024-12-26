@@ -16,6 +16,7 @@ def save_file(name: str, content: str) -> None:
     data = content.encode("utf8").split(b";base64,")[1]
     with open(os.path.join(VibesterConfig.path_music, name), "wb") as fp:
         fp.write(base64.decodebytes(data))
+    print(f"Successfully saved {name}")
 
 
 def register_callbacks():
