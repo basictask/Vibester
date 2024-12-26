@@ -8,9 +8,11 @@ class Track:
     def __init__(self, track: Dict):
         self.title = track.get("title", "")
         self.artist = track.get("artist", "")
-        self.year = track.get("year", "")
         self.genre = track.get("genre", "")
         self.hash = track.get("hash", "")
+
+        if track.get("year", None):
+            self.year = int(track.get("year"))
 
     def qr_svg(self) -> Tuple[str, int]:
         """
