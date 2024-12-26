@@ -48,11 +48,24 @@ def get_layout() -> html.Div:
                                                     className="ag-theme-alpine-dark",
                                                     columnSize="responsiveSizeToFit",
                                                     columnDefs=[
-                                                        {"headerName": x.capitalize(), "field": x, "editable": True}
+                                                        {
+                                                            "field": x,
+                                                            "headerName": x.capitalize(),
+                                                            "tooltipField": x,
+                                                            "editable": True,
+                                                        }
                                                         for x in VibesterConfig.generate_table_cols
                                                     ],
                                                     rowData=[],
-                                                    defaultColDef={"sortable": True, "filter": True, "resizable": True},
+                                                    defaultColDef={
+                                                        "sortable": True,
+                                                        "filter": True,
+                                                        "resizable": True,
+                                                        "tooltipComponent": None
+                                                    },
+                                                    dashGridOptions={
+                                                        "enableBrowserTooltips": True
+                                                    },
                                                     style={
                                                         "width": "100%",
                                                     }
