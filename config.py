@@ -29,10 +29,10 @@ class VibesterConfig:
 
     # Fixed locations
     path_db = "data/db.parquet"
-    path_music = "data/music"
-    path_output = "data/output"
     path_user = "data/user/user.parquet"
-    path_cert = "cert"
+    path_output = "data/output"
+    path_music = "data/music"
+    path_cert = "data/cert"
 
     # PDF generation
     grid = True

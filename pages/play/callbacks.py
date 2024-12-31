@@ -8,7 +8,7 @@ from typing import List, Dict, Tuple
 from dash import Dash, Input, Output, State, callback, no_update, ctx
 
 
-def register_callbacks(app: Dash):
+def register_callbacks(app: Dash) -> None:
     @callback(
         Output({"name": "music_store", "type": "store", "page": "play"}, "data"),
         Input({"name": "url", "type": "location", "page": "play"}, "pathname"),

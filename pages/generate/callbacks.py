@@ -10,7 +10,7 @@ from dash import Input, Output, State, callback, ctx, no_update
 from pages.generate.music_utils import is_music_file, calculate_hash, get_metadata
 
 
-def register_callbacks():
+def register_callbacks() -> None:
     @callback(
         Output({"name": "music_table", "type": "table", "page": "index"}, "rowData"),
         Input({"name": "url", "type": "location", "page": "index"}, "pathname"),

@@ -1,5 +1,4 @@
 import os
-
 import dash
 from loader import setup_folders
 from config import VibesterConfig
@@ -7,11 +6,12 @@ from user import User, UserManager
 import dash_mantine_components as dmc
 from dash import Input, Output, dcc, html
 from flask import Flask, send_from_directory, redirect, url_for
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from pages.generate.music_utils import setup_musicbrainz_client
 from pages.play.layout import get_layout as get_layout_play
 from pages.index.layout import get_layout as get_layout_index
+from pages.login.layout import get_layout as get_layout_login
 from pages.upload.layout import get_layout as get_layout_upload
 from pages.generate.layout import get_layout as get_layout_generate
 from pages.play.callbacks import register_callbacks as register_callbacks_play
@@ -60,17 +60,7 @@ def login():
             return "Invalid credentials", 401
 
     # Simple login form
-    return render_template_string(
-        """
-        <form method="post">
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username">
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password">
-            <button type="submit">Login</button>
-        </form>
-        """
-    )
+    return render_template_string(get_layout_login())
 
 
 @server.route("/logout")
@@ -87,13 +77,26 @@ app.layout = dmc.MantineProvider(
     children=html.Div(
         style={"padding": "100px 0", "backgroundColor": "#242424"},
         children=[
-            dmc.Center(dmc.Title("Vibester", order=1)),
-            dmc.Center(
-                html.Div(
-                    id={"name": "content", "type": "div", "page": "index"},
-                    style={"padding": "100px 0", "backgroundColor": "#242424"},
-                    children=[dmc.Text("Please log in to continue at /login.")]
-                )
+            dmc.Grid(
+                gutter="100px",
+                justify="center",
+                align="center",
+                children=[
+                    dmc.GridCol(
+                        span=12,
+                        children=[
+                            dmc.Center(
+                                dmc.Title("Vibester", order=1)
+                            )
+                        ]
+                    ),
+                    html.Div(
+                        id={"name": "content", "type": "div", "page": "index"},
+                        children=[
+                            dmc.Text("Log in to continue")
+                        ]
+                    )
+                ]
             ),
             dcc.Store(id={"name": "db", "type": "store", "page": "index"}, data=[]),
             dcc.Location(id={"name": "url", "type": "location", "page": "index"}, refresh=False),
@@ -107,11 +110,12 @@ app.layout = dmc.MantineProvider(
     Output({"name": "content", "type": "div", "page": "index"}, "children"),
     Input({"name": "url", "type": "location", "page": "index"}, "pathname"),
 )
-@login_required
-def update_content(pathname: str) -> html.Div:
+def update_content(pathname: str) -> html.Div | dcc.Location:
     """
     Updates the layout of the main page based on the buttons clicked in the main menu
     """
+    if not current_user.is_authenticated:
+        return dcc.Location(pathname='/login', id='redirect')  # Redirect to /login
     if pathname == "/play":
         return get_layout_play()
     elif pathname == "/upload":
