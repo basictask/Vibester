@@ -29,9 +29,10 @@ class VibesterConfig:
 
     # Fixed locations
     path_db = "data/db.parquet"
-    path_music = "data/music"
+    path_user = "data/user/user.parquet"
     path_output = "data/output"
-    path_cert = "cert"
+    path_music = "data/music"
+    path_cert = "data/cert"
 
     # PDF generation
     grid = True
@@ -69,4 +70,3 @@ class VibesterConfig:
         "background-repeat": "no-repeat",
         "background-position": "center"
     }
-

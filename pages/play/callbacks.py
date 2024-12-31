@@ -8,7 +8,7 @@ from typing import List, Dict, Tuple
 from dash import Dash, Input, Output, State, callback, no_update, ctx
 
 
-def register_callbacks(app: Dash):
+def register_callbacks(app: Dash) -> None:
     @callback(
         Output({"name": "music_store", "type": "store", "page": "play"}, "data"),
         Input({"name": "url", "type": "location", "page": "play"}, "pathname"),
@@ -61,8 +61,10 @@ def register_callbacks(app: Dash):
                 }
                 video.style.display = "none";
             }
+            return "";
         }
         """,
+        Output({"name": "dummy", "type": "store", "page": "play"}, "data"),
         Input({"name": "url", "type": "location", "page": "play"}, "pathname")
     )
 
@@ -143,8 +145,6 @@ def register_callbacks(app: Dash):
                             {"display": "none"},
                             f"/music/{filename}",
                             VibesterConfig.default_style_button_big_gif,
-
-
                         )
 
                 return no_update, no_update, no_update

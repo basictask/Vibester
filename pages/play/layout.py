@@ -1,9 +1,8 @@
 from dash import html, dcc
 from config import VibesterConfig
-from dash_iconify import DashIconify
 import dash_mantine_components as dmc
-from components.buttons import button_big
 from components.loading import loading
+from components.buttons import button_big
 
 
 def get_layout() -> html.Div:
@@ -62,7 +61,6 @@ def get_layout() -> html.Div:
                                             page="play",
                                             style={"display": "none"}
                                         )
-
                                     ]
                                 )
                             )
@@ -72,6 +70,7 @@ def get_layout() -> html.Div:
                     dcc.Interval(id={"name": "sample", "type": "interval", "page": "play"}, interval=1000),
                     dcc.Store(id={"name": "music_store", "type": "store", "page": "play"}, data=[]),
                     dcc.Store(id={"name": "frame_store", "type": "store", "page": "play"}, data=[]),
+                    dcc.Store(id={"name": "dummy", "type": "store", "page": "play"}, data=[]),
                 ]
             )
         ]

@@ -2,6 +2,7 @@ from dash import html, dcc
 from config import VibesterConfig
 from dash_iconify import DashIconify
 import dash_mantine_components as dmc
+from components.loading import loading
 
 
 def get_layout() -> html.Div:
@@ -27,25 +28,31 @@ def get_layout() -> html.Div:
                         span=12,
                         children=[
                             dmc.Center(
-                                dcc.Upload(
-                                    id={"name": "upload", "type": "upload", "page": "upload"},
-                                    children=DashIconify(
-                                        icon="ion:rocket",
-                                        width=100,
-                                    ),
-                                    style={
-                                        "display": "flex",  # Use flexbox
-                                        "justifyContent": "center",  # Center horizontally
-                                        "alignItems": "center",  # Center vertically
-                                        "width": f"{VibesterConfig.ui_scale}px",
-                                        "height": f"{VibesterConfig.ui_scale}px",
-                                        "lineHeight": "60px",
-                                        "borderWidth": "5px",
-                                        "borderStyle": "dashed",
-                                        "borderRadius": "5px",
-                                        "textAlign": "center",
-                                    },
-                                    multiple=True,
+                                loading(
+                                    name="loading",
+                                    page="upload",
+                                    children=[
+                                        dcc.Upload(
+                                            id={"name": "upload", "type": "upload", "page": "upload"},
+                                            children=DashIconify(
+                                                icon="ion:rocket",
+                                                width=100,
+                                            ),
+                                            style={
+                                                "display": "flex",
+                                                "justifyContent": "center",
+                                                "alignItems": "center",
+                                                "width": f"{VibesterConfig.ui_scale}px",
+                                                "height": f"{VibesterConfig.ui_scale}px",
+                                                "lineHeight": "60px",
+                                                "borderWidth": "5px",
+                                                "borderStyle": "dashed",
+                                                "borderRadius": "5px",
+                                                "textAlign": "center",
+                                            },
+                                            multiple=True,
+                                        )
+                                    ]
                                 )
                             )
                         ]

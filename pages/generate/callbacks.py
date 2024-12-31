@@ -10,7 +10,7 @@ from dash import Input, Output, State, callback, ctx, no_update
 from pages.generate.music_utils import is_music_file, calculate_hash, get_metadata
 
 
-def register_callbacks():
+def register_callbacks() -> None:
     @callback(
         Output({"name": "music_table", "type": "table", "page": "index"}, "rowData"),
         Input({"name": "url", "type": "location", "page": "index"}, "pathname"),
@@ -42,15 +42,15 @@ def register_callbacks():
                 elif is_music_file(filename) and filename not in df_db["filename"]:  # Music file not in database
                     music_metadata = get_metadata(filepath)  # Download metadata ("artist", "title", "year", "genre")
                     if music_metadata is None:
-                        continue
+                        music_metadata = dict()
 
                     new_row = pd.DataFrame(
                         {
                             "filename": [filename],
-                            "artist": [music_metadata.get("artist", "")],
-                            "title": [music_metadata.get("title", "")],
-                            "year": [music_metadata.get("year", "")],
-                            "genre": [music_metadata.get("genre", "")],
+                            "artist": [music_metadata.get("artist", None)],
+                            "title": [music_metadata.get("title", None)],
+                            "year": [music_metadata.get("year", None)],
+                            "genre": [music_metadata.get("genre", None)],
                             "saved": [False],
                             "hash": [calculate_hash(filename)],
                         }
@@ -95,6 +95,7 @@ def register_callbacks():
             # Set up the dataframes
             df = pd.DataFrame(row_data)
             df_virtual = pd.DataFrame(row_data_virtual)
+            df_virtual.dropna(inplace=True, subset=["artist", "title", "year"])  # Rows must have these tags
             
             # Mark saved files
             filenames_to_mark = df_virtual["filename"].unique()
