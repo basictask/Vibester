@@ -3,7 +3,7 @@ from config import VibesterConfig
 from generator.track import Track
 from typing import List, Literal
 from dataclasses import dataclass, field
-from generator.utils import render_text_svg
+from generator.generator_utils import render_text_svg
 
 
 @dataclass

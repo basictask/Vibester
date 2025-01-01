@@ -45,6 +45,14 @@ def calculate_hash(input_string: str, hash_length: int = VibesterConfig.hash_len
     return md5_hash.hexdigest()[:hash_length]
 
 
+def infer_year(s: str) -> int | None:
+    """
+    Takes a string and returns the first integer of that string if any.
+    """
+    match = re.search(r'\d+', s)
+    return int(match.group()) if match else None
+
+
 def find_smallest_year(*args: Union[str, None]) -> Optional[int]:
     """
     Determine the smallest year from a list of arguments. Return None if no valid years are found.
@@ -235,6 +243,8 @@ def get_metadata(filepath: str) -> Dict[str, str]:
     else:
         print(f"Unsuccessful song ID for file: {filepath}")
         return dict()
+
+    metadata["year"] = infer_year(s=str(metadata["year"]))
 
     print(f"{','.join([str(metadata[x]) for x in metadata.keys()])}")
     return metadata

@@ -41,8 +41,7 @@ def register_callbacks() -> None:
                         new_row["directory"] = root  # Add directory column
 
                     elif is_music_file(filename) and filename not in df_db["filename"].values:
-                        music_metadata = get_metadata(
-                            filepath)  # Download metadata ("artist", "title", "year", "genre")
+                        music_metadata = get_metadata(filepath=filepath)
                         if music_metadata is None:
                             music_metadata = dict()
 

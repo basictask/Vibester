@@ -1,4 +1,3 @@
-import re
 import qrcode
 from typing import Dict, Tuple
 from xml.etree import ElementTree
@@ -8,13 +7,10 @@ from qrcode.image.svg import SvgPathImage
 class Track:
     def __init__(self, track: Dict):
         self.title = track.get("title", "")
+        self.year = track.get("year", "")
         self.artist = track.get("artist", "")
         self.genre = track.get("genre", "")
         self.hash = track.get("hash", "")
-
-        if track.get("year", None):
-            match = re.search(r'\d+', track.get("year"))
-            self.year = int(match.group()) if match else None
 
     def qr_svg(self) -> Tuple[str, int]:
         """
