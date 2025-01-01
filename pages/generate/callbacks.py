@@ -30,37 +30,40 @@ def register_callbacks() -> None:
             df_db = load_db()
             result = pd.DataFrame()
 
-            # Read music from the local storage
-            for filename in os.listdir(VibesterConfig.path_music):
-                filepath = os.path.abspath(os.path.join(VibesterConfig.path_music, filename))
+            for root, _, files in os.walk(VibesterConfig.path_music):  # Traverse target folder recursively
+                for filename in files:
+                    filepath = os.path.abspath(str(os.path.join(root, filename)))
 
-                if is_music_file(filename) and filename in df_db["filename"].values:  # Music file in database
-                    new_row = pd.DataFrame(
-                        df_db[df_db["filename"] == filename]
-                    ).drop_duplicates(keep="first", subset="filename")
+                    if is_music_file(filename) and filename in df_db["filename"].values:  # Music file in database
+                        new_row = pd.DataFrame(
+                            df_db[df_db["filename"] == filename]
+                        ).drop_duplicates(keep="first", subset="filename")
+                        new_row["directory"] = root  # Add directory column
 
-                elif is_music_file(filename) and filename not in df_db["filename"]:  # Music file not in database
-                    music_metadata = get_metadata(filepath)  # Download metadata ("artist", "title", "year", "genre")
-                    if music_metadata is None:
-                        music_metadata = dict()
+                    elif is_music_file(filename) and filename not in df_db["filename"].values:
+                        music_metadata = get_metadata(
+                            filepath)  # Download metadata ("artist", "title", "year", "genre")
+                        if music_metadata is None:
+                            music_metadata = dict()
 
-                    new_row = pd.DataFrame(
-                        {
-                            "filename": [filename],
-                            "artist": [music_metadata.get("artist", None)],
-                            "title": [music_metadata.get("title", None)],
-                            "year": [music_metadata.get("year", None)],
-                            "genre": [music_metadata.get("genre", None)],
-                            "saved": [False],
-                            "hash": [calculate_hash(filename)],
-                        }
-                    )
+                        new_row = pd.DataFrame(
+                            {
+                                "filename": [filename],
+                                "artist": [music_metadata.get("artist", None)],
+                                "title": [music_metadata.get("title", None)],
+                                "year": [music_metadata.get("year", None)],
+                                "genre": [music_metadata.get("genre", None)],
+                                "saved": [False],
+                                "hash": [calculate_hash(filename)],
+                                "directory": [os.path.basename(root)],
+                            }
+                        )
 
-                else:
-                    continue
+                    else:
+                        continue
 
-                result = pd.concat([result, new_row], ignore_index=True)
-                time.sleep(0.34)  # At most 3 requests per second
+                    result = pd.concat([result, new_row], ignore_index=True)
+                    time.sleep(0.34)  # At most 3 requests per second
 
             return result.to_dict("records")
 

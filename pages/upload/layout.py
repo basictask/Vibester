@@ -1,8 +1,9 @@
-from dash import html, dcc
-from config import VibesterConfig
-from dash_iconify import DashIconify
+import uuid
+from dash import html
+import dash_uploader as du
 import dash_mantine_components as dmc
 from components.loading import loading
+from config import VibesterConfig
 
 
 def get_layout() -> html.Div:
@@ -32,25 +33,12 @@ def get_layout() -> html.Div:
                                     name="loading",
                                     page="upload",
                                     children=[
-                                        dcc.Upload(
-                                            id={"name": "upload", "type": "upload", "page": "upload"},
-                                            children=DashIconify(
-                                                icon="ion:rocket",
-                                                width=100,
-                                            ),
-                                            style={
-                                                "display": "flex",
-                                                "justifyContent": "center",
-                                                "alignItems": "center",
-                                                "width": f"{VibesterConfig.ui_scale}px",
-                                                "height": f"{VibesterConfig.ui_scale}px",
-                                                "lineHeight": "60px",
-                                                "borderWidth": "5px",
-                                                "borderStyle": "dashed",
-                                                "borderRadius": "5px",
-                                                "textAlign": "center",
-                                            },
-                                            multiple=True,
+                                        du.Upload(
+                                            id={"name": "upload", "type": "upload", "page": "music"},
+                                            max_files=500,
+                                            max_file_size=40,
+                                            filetypes=[x.lstrip(".") for x in VibesterConfig.supported_formats],
+                                            upload_id=str(uuid.uuid1()),  # Unique session id
                                         )
                                     ]
                                 )
