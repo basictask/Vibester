@@ -24,7 +24,7 @@ class VibesterConfig:
     mantine_gradient_red = {"from": "red", "to": "yellow", "deg": 45},
 
     # Fixed lists
-    generate_table_cols = ["filename", "artist", "title", "year", "genre", "saved", "hash"]
+    generate_table_cols = ["filename", "artist", "title", "year", "saved", "hash", "directory"]
     supported_formats = [".mp3", ".mp4", ".ogg", ".wav", ".wma", ".m4a"]
 
     # Fixed locations

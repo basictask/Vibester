@@ -1,3 +1,4 @@
+import re
 import qrcode
 from typing import Dict, Tuple
 from xml.etree import ElementTree
@@ -12,7 +13,8 @@ class Track:
         self.hash = track.get("hash", "")
 
         if track.get("year", None):
-            self.year = int(track.get("year"))
+            match = re.search(r'\d+', track.get("year"))
+            self.year = int(match.group()) if match else None
 
     def qr_svg(self) -> Tuple[str, int]:
         """

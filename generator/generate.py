@@ -21,8 +21,13 @@ def get_tracks(df: pd.DataFrame) -> List[Track]:
     tracks: List[Track] = []
     for idx in df.index:
         row = df.loc[idx, :].to_dict()
-        track = Track(track=row)
-        tracks.append(track)
+        try:
+            track = Track(track=row)
+        except Exception as e:
+            print(e)
+            continue
+        if track.year is not None:
+            tracks.append(track)
 
     return tracks
 

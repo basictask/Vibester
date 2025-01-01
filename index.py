@@ -1,5 +1,6 @@
 import os
 import dash
+import dash_uploader as du
 from loader import setup_folders
 from config import VibesterConfig
 from user import User, UserManager
@@ -22,7 +23,7 @@ from pages.generate.callbacks import register_callbacks as register_callbacks_ge
 
 # Flask setup
 server = Flask(__name__)
-server.secret_key = "your_secret_key"  # Replace with a secure secret key
+server.secret_key = os.getenv("APP_SERVER_SECRET_KEY")
 login_manager = LoginManager()
 login_manager.init_app(server)
 login_manager.login_view = "login"
@@ -146,6 +147,9 @@ def serve_music(filename):
 
 # Setup folders that are needed for I/O operations
 setup_folders()
+
+# Configure dash-uploader to save files to the path defined in config
+du.configure_upload(app, VibesterConfig.path_music)
 
 
 if __name__ == "__main__":
