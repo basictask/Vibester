@@ -1,4 +1,5 @@
 import os
+import init
 import dash
 import dash_uploader as du
 from loader import setup_folders
@@ -20,6 +21,9 @@ from pages.index.callbacks import register_callbacks as register_callbacks_index
 from pages.upload.callbacks import register_callbacks as register_callbacks_upload
 from pages.generate.callbacks import register_callbacks as register_callbacks_generate
 
+
+# Load dotenv
+init.load_env_file(filepath=".env")
 
 # Flask setup
 server = Flask(__name__)
