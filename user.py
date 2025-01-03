@@ -17,12 +17,15 @@ class UserManager:
     """
     Manages user data stored in a Parquet file with encrypted passwords.
     """
-    def __init__(self, filepath: str, key: bytes):
+    def __init__(self, filepath: str, key: str):
         """
         Initializes the UserManager with the file path and encryption key.
         """
+        if not key.endswith("="):
+            key += "="
+
         self.filepath = filepath
-        self.cipher = Fernet(key)
+        self.cipher = Fernet(key.encode('utf-8'))
         self.users = self._load_users()
 
     def _load_users(self) -> pd.DataFrame:
@@ -90,5 +93,5 @@ class UserManager:
 
 
 if __name__ == "__main__":
-    # Add a sample user and create a database
-    user_manager = UserManager(filepath=VibesterConfig.path_user, key=eval(os.getenv("APP_USERS_ENCRYPTION_KEY")))
+    # Sample instantiation for testing
+    user_manager = UserManager(filepath=VibesterConfig.path_user, key=os.getenv("APP_USERS_ENCRYPTION_KEY"))

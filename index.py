@@ -33,7 +33,7 @@ app = dash.Dash(__name__, server=server)
 app.config.suppress_callback_exceptions = True
 
 # Initialize the user manager
-user_manager = UserManager(filepath=VibesterConfig.path_user, key=eval(os.getenv("APP_USERS_ENCRYPTION_KEY")))
+user_manager = UserManager(filepath=VibesterConfig.path_user, key=os.getenv("APP_USERS_ENCRYPTION_KEY"))
 
 
 @login_manager.user_loader
