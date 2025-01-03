@@ -6,7 +6,7 @@ from loader import load_db
 from config import VibesterConfig
 from typing import Dict, List, Any
 from generator.generate import generate
-from dash import Input, Output, State, callback, ctx, no_update
+from dash import Input, Output, State, dcc, callback, ctx, no_update
 from pages.generate.music_utils import is_music_file, calculate_hash, get_metadata
 
 
@@ -76,6 +76,7 @@ def register_callbacks() -> None:
         Output({"name": "feedback", "type": "alert", "page": "generate"}, "title"),
         Output({"name": "feedback", "type": "alert", "page": "generate"}, "children"),
         Output({"name": "feedback", "type": "alert", "page": "generate"}, "hide"),
+        Output({"name": "download", "type": "download", "page": "generate"}, "data"),
         Input({"name": "generate_run", "type": "button", "page": "generate"}, "n_clicks"),
         State({"name": "music_table", "type": "table", "page": "index"}, "rowData"),
         State({"name": "music_table", "type": "table", "page": "index"}, "virtualRowData"),
@@ -84,14 +85,14 @@ def register_callbacks() -> None:
         n_clicks: int,
         row_data: List[Dict],
         row_data_virtual: List[Dict],
-    ) -> tuple[Any | List[Dict], Any | str, Any | str, Any | str, Any | bool]:
+    ) -> tuple[Any | List[Dict], Any | str, Any | str, Any | str, Any | bool, Any | Dict]:
         """
         Callback function that defines the behavior for the run button on the generate page.
         The function takes the content of the table on the page and renders all the currently shown rows
         into a pdf file with QR codes that can be cut up using scissors to create the cards.
         """
         if not n_clicks or not row_data or not row_data_virtual or len(row_data) == 0 or len(row_data_virtual) == 0:
-            return no_update, no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update, no_update
 
         try:
             # Set up the dataframes
@@ -112,7 +113,14 @@ def register_callbacks() -> None:
             generate(df=df_virtual, filename=output_filename)
 
             # Return successful message on the page
-            return df.to_dict("records"), "green", "Success", f"Records saved to {output_filename}", False
+            return (
+                df.to_dict("records"),
+                "green",
+                "Success",
+                f"Records saved to {output_filename}",
+                False,
+                dcc.send_file(os.path.join(VibesterConfig.path_output, output_filename))
+            )
 
         except Exception as e:
-            return no_update, "red", "Error", f"{e}", False
+            return no_update, "red", "Error", f"{e}", False, no_update
