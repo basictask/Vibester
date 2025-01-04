@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from typing import Optional
 from config import VibesterConfig
 from flask_login import UserMixin
 from cryptography.fernet import Fernet
@@ -9,8 +10,9 @@ class User(UserMixin):
     """
     User model
     """
-    def __init__(self, user_id: str):
-        self.id = user_id
+    def __init__(self, username: str, role: str):
+        self.id = username
+        self.role = role
 
 
 class UserManager:
@@ -90,6 +92,14 @@ class UserManager:
         Returns whether a user exists in the Parquet file or not.
         """
         return username in self.users["username"].values
+
+    def get_role(self, username: str) -> Optional[str]:
+        """
+        Returns the string form of the role of a user from the local database.
+        """
+        if self.user_exists(username=username):
+            return self.users[self.users["username"] == username]["role"].iloc[0]
+        return None
 
 
 if __name__ == "__main__":

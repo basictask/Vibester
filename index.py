@@ -2,6 +2,7 @@ import os
 import init
 import dash
 import dash_uploader as du
+from typing import Optional
 from loader import setup_folders
 from config import VibesterConfig
 from user import User, UserManager
@@ -41,8 +42,12 @@ user_manager = UserManager(filepath=VibesterConfig.path_user, key=os.getenv("APP
 
 
 @login_manager.user_loader
-def load_user(username):
-    return User(username) if user_manager.user_exists(username=username) else None
+def load_user(username: str) -> Optional[User]:
+    if not user_manager.user_exists(username=username):
+        return None
+    else:
+        role = user_manager.get_role(username=username)
+        return User(username=username, role=role)
 
 
 # Flask routes for authentication
@@ -58,7 +63,8 @@ def login():
             user_manager.user_exists(username=username) and  # User exists
             user_manager.verify_user(username=username, password=password)  # Password verification
         ):
-            user = User(username)
+            role = user_manager.get_role(username=username)
+            user = User(username=username, role=role)
             login_user(user)
             return redirect(url_for("/"))
         else:
@@ -121,14 +127,16 @@ def update_content(pathname: str) -> html.Div | dcc.Location:
     """
     if not current_user.is_authenticated:
         return dcc.Location(pathname='/login', id='redirect')  # Redirect to /login
-    if pathname == "/play":
+
+    role = user_manager.get_role(current_user.id)
+    if pathname == "/play" and role in VibesterConfig.pages_config.loc["/play", "role"]:
         return get_layout_play()
-    elif pathname == "/upload":
+    elif pathname == "/upload" and role in VibesterConfig.pages_config.loc["/upload", "role"]:
         return get_layout_upload()
-    elif pathname == "/generate":
+    elif pathname == "/generate" and role in VibesterConfig.pages_config.loc["/generate", "role"]:
         return get_layout_generate()
     else:
-        return get_layout_index()
+        return get_layout_index(role=role)
 
 
 # Callback registration from all the pages

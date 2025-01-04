@@ -14,6 +14,11 @@ class VibesterConfig:
                 "ion:musical-notes",
                 "ion:sparkles",
                 "ion:cloud-upload-sharp"
+            ],
+            "role": [  # Roles allowed to view the page
+                ("admin", "user"),
+                "admin",
+                "admin",
             ]
         }
     )
