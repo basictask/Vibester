@@ -10,7 +10,7 @@ class Track:
         Sets up a Track object for further use in generating the printable PDF.
         """
         self.title = track.get("title", "")
-        self.year = track.get("year", "")
+        self.year = int(track.get("year", ""))
         self.artist = track.get("artist", "")
         self.genre = track.get("genre", "")
         self.hash = track.get("hash", "")

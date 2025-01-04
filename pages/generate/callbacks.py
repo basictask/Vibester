@@ -110,7 +110,6 @@ def register_callbacks() -> None:
             # Mark saved files
             filenames = df_virtual["filename"]
             mask = df["filename"].isin(filenames)
-            assert len(mask) == len(filenames), "Error: duplicate filename in file names mask during pdf generation."
 
             # Update the columns in the basic DataFrame
             df = df.merge(df_virtual[["filename", "hash"]], on="filename", how="left", suffixes=('', "_new"))  # Merge
