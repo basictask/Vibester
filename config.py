@@ -33,7 +33,7 @@ class VibesterConfig:
     supported_formats = [".mp3", ".mp4", ".ogg", ".wav", ".wma", ".m4a"]
 
     # Fixed locations
-    path_db = "data//db/db.parquet"
+    path_db = "data/db/db.parquet"
     path_user = "data/user/user.parquet"
     path_output = "data/output"
     path_music = "data/music/ishkur"

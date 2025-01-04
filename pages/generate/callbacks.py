@@ -113,8 +113,10 @@ def register_callbacks() -> None:
             assert len(mask) == len(filenames), "Error: duplicate filename in file names mask during pdf generation."
 
             # Update the columns in the basic DataFrame
+            df = df.merge(df_virtual[["filename", "hash"]], on="filename", how="left", suffixes=('', "_new"))  # Merge
+            df["hash"] = df["hash_new"].combine_first(df["hash"])  # Prioritize the new values
+            df.drop(columns=["hash_new"], inplace=True)  # Clean up
             df.loc[mask, "saved"] = True
-            df.loc[mask, "hash"] = df_virtual["hash"].copy()
 
             # Save current Dataframe to parquet
             df.to_parquet(VibesterConfig.path_db)
