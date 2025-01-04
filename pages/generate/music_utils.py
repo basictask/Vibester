@@ -41,8 +41,8 @@ def calculate_hash(input_string: str, hash_length: int = VibesterConfig.hash_len
     Calculates the hash of a given string.
     Used when encoding music into a QR code.
     """
-    utf_safe_string = str(input_string).encode("utf-8", errors="replace").decode("utf-8")
-    md5_hash = hashlib.md5(utf_safe_string.encode())
+    safe_string = os.fsdecode(input_string).encode("utf-8", errors="replace").decode("utf-8")
+    md5_hash = hashlib.md5(safe_string.encode())  # Hash the UTF-8 safe filename
     return md5_hash.hexdigest()[:hash_length]
 
 

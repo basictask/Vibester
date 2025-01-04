@@ -53,7 +53,7 @@ def register_callbacks() -> None:
                                 "year": [music_metadata.get("year", None)],
                                 "genre": [music_metadata.get("genre", None)],
                                 "saved": [False],
-                                "hash": [calculate_hash(filename)],
+                                "hash": [None],
                                 "directory": [os.path.basename(root)],
                             }
                         )
@@ -97,13 +97,24 @@ def register_callbacks() -> None:
         try:
             # Set up the dataframes
             df = pd.DataFrame(row_data)
+            df.drop_duplicates(inplace=True)
             df_virtual = pd.DataFrame(row_data_virtual)
-            df_virtual.dropna(inplace=True, subset=["artist", "title", "year"])  # Rows must have these tags
-            
+            df_virtual.drop_duplicates(inplace=True)
+            df_virtual.dropna(inplace=True, subset=["filename", "artist", "title", "year"])  # Rows must have these tags
+            df_virtual["hash"] = [
+                calculate_hash(f"{artist}{title}{year}") for artist, title, year in zip(
+                    df_virtual["artist"], df_virtual["title"], df_virtual["year"]
+                )
+            ]
+
             # Mark saved files
-            filenames_to_mark = df_virtual["filename"].unique()
-            mask = df["filename"].isin(filenames_to_mark) & ~df["saved"]
+            filenames = df_virtual["filename"]
+            mask = df["filename"].isin(filenames)
+            assert len(mask) == len(filenames), "Error: duplicate filename in file names mask during pdf generation."
+
+            # Update the columns in the basic DataFrame
             df.loc[mask, "saved"] = True
+            df.loc[mask, "hash"] = df_virtual["hash"].copy()
 
             # Save current Dataframe to parquet
             df.to_parquet(VibesterConfig.path_db)
