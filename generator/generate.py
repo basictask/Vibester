@@ -34,7 +34,7 @@ def get_tracks(df: pd.DataFrame) -> List[Track]:
 
 def get_tables(tracks: List[Track]) -> List[Table]:
     """
-    Takes a list of Track objects and organizes them into a list of Table objects
+    Takes a list of Track objects and organizes them into a list of Table objects.
     """
     tables: List[Table] = []
     table = Table()
@@ -55,8 +55,8 @@ def get_tables(tracks: List[Track]) -> List[Table]:
 
 def get_svg_files(tables: List[Table]) -> List[str]:
     """
-    Takes a list of Table objects and converts them into SVG files
-    The conversion logic is implemented in the Table class
+    Takes a list of Table objects and converts them into SVG files.
+    The conversion logic is implemented in the Table class.
     """
     svg_files: List[str] = []
     for table in tables:
@@ -106,7 +106,7 @@ def write_to_pdf(svg_files: List[str], filename: str) -> None:
 
 def generate(df: pd.DataFrame, filename: str) -> None:
     """
-    Takes a pandas DataFrame and renders a pdf file from it
+    Takes a pandas DataFrame and renders a pdf file from it.
     """
     # Append pdf to
     if not filename.endswith(".pdf"):

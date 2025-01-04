@@ -5,16 +5,16 @@ import requests
 
 class SpotifyTokenGenerator:
     """
-    Class that can generate and re-generate a Spotify token
-    The token is regenerated every 59 minutes as it expires after an hour
+    Class that can generate and re-generate a Spotify token.
+    The token is regenerated every 59 minutes as it expires after an hour.
     """
     def __init__(self):
         self.url = "https://accounts.spotify.com/api/token"
         self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
         self.data = {"grant_type": "client_credentials"}
 
-        self.client_id = os.environ.get('SPOTIFY_CLIENT_ID')
-        self.client_secret = os.environ.get('SPOTIFY_CLIENT_SECRET')
+        self.client_id = os.environ.get("SPOTIFY_CLIENT_ID")
+        self.client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
         self.auth = (self.client_id, self.client_secret)
 
         self.token_lifespan = 59 * 60
@@ -35,7 +35,7 @@ class SpotifyTokenGenerator:
 
     def get_token(self) -> str:
         """
-        Sets the new access token if it has not been set in the last 59 minutes
+        Sets the new access token if it has not been set in the last 59 minutes.
         """
         current_time = time.time()
 

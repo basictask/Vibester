@@ -28,7 +28,7 @@ def setup_musicbrainz_client() -> None:
 
 def is_music_file(filename: str) -> bool:
     """
-    Decides if a single file is musical based on the extension
+    Decides if a single file is musical based on the extension.
     """
     for extension in VibesterConfig.supported_formats:
         if filename.endswith(extension):
@@ -38,10 +38,11 @@ def is_music_file(filename: str) -> bool:
 
 def calculate_hash(input_string: str, hash_length: int = VibesterConfig.hash_length) -> str:
     """
-    Calculates the hash of a given string
-    Used when encoding music into a QR code
+    Calculates the hash of a given string.
+    Used when encoding music into a QR code.
     """
-    md5_hash = hashlib.md5(input_string.encode())
+    utf_safe_string = str(input_string).encode("utf-8", errors="replace").decode("utf-8")
+    md5_hash = hashlib.md5(utf_safe_string.encode())
     return md5_hash.hexdigest()[:hash_length]
 
 
@@ -64,7 +65,7 @@ def find_smallest_year(*args: Union[str, None]) -> Optional[int]:
 @robust
 def get_metadata_from_file(filepath: str) -> Dict[str, str]:
     """
-    Extracts the metadata embedded into a mp3 file if possible
+    Extracts the metadata embedded into a mp3 file if possible.
     """
     audio = MP3(filepath, ID3=ID3)
     metadata = {
@@ -78,7 +79,7 @@ def get_metadata_from_file(filepath: str) -> Dict[str, str]:
 @robust
 def get_recording_id(filepath: str) -> Optional[str]:
     """
-    Uses acoustid to fingerprint a single music file and returns its recording ID
+    Uses acoustid to fingerprint a single music file and returns its recording ID.
     """
     api_key_acoustid = os.getenv("API_KEY_ACOUSTID")
     results = acoustid.match(api_key_acoustid, filepath)
@@ -91,7 +92,7 @@ def get_recording_id(filepath: str) -> Optional[str]:
 @robust
 def query_musicbrainz(recording_id: str) -> Dict[str, Optional[str]]:
     """
-    Queries the MusicBrainz API for music recordings based on the recording ID
+    Queries the MusicBrainz API for music recordings based on the recording ID.
     """
     result = musicbrainzngs.get_recording_by_id(recording_id, includes=["artists", "releases", "tags"])
     recording = result["recording"]
@@ -197,7 +198,7 @@ def query_spotify(title: str, artist: str) -> Optional[str]:
 def get_artist_from_filepath(filepath: str) -> Optional[str]:
     """
     Gets the artist name from a file path.
-    Supposes that the file name is of the structure "artist - title.mp3"
+    Supposes that the file name is of the structure "artist - title.mp3".
     """
     filename = os.path.basename(filepath)
     match = re.match(r"^(.*?) - ", filename)
@@ -208,7 +209,7 @@ def get_artist_from_filepath(filepath: str) -> Optional[str]:
 def get_title_from_filepath(filepath: str) -> Optional[str]:
     """
     Gets the title from a file path.
-    Supposes that the file name is of the structure "artist - title.mp3"
+    Supposes that the file name is of the structure "artist - title.mp3".
     """
     filename = os.path.basename(filepath)
     for fmt in VibesterConfig.supported_formats:

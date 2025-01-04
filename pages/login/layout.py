@@ -1,6 +1,6 @@
 def get_layout() -> str:
     """
-    Layout for the login page
+    Layout for the login page.
     """
     return """
     <!DOCTYPE html>

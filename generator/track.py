@@ -6,6 +6,9 @@ from qrcode.image.svg import SvgPathImage
 
 class Track:
     def __init__(self, track: Dict):
+        """
+        Sets up a Track object for further use in generating the printable PDF.
+        """
         self.title = track.get("title", "")
         self.year = track.get("year", "")
         self.artist = track.get("artist", "")
