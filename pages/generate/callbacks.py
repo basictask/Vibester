@@ -1,5 +1,4 @@
 import os
-import time
 import datetime
 import pandas as pd
 from loader import load_db
@@ -38,7 +37,7 @@ def register_callbacks() -> None:
                         new_row = pd.DataFrame(
                             df_db[df_db["filename"] == filename]
                         ).drop_duplicates(keep="first", subset="filename")
-                        new_row["directory"] = root  # Add directory column
+                        new_row["directory"] = str(os.path.basename(root))  # Add directory column
 
                     elif is_music_file(filename) and filename not in df_db["filename"].values:
                         music_metadata = get_metadata(filepath=filepath)
@@ -62,7 +61,6 @@ def register_callbacks() -> None:
                         continue
 
                     result = pd.concat([result, new_row], ignore_index=True)
-                    time.sleep(0.34)  # At most 3 requests per second
 
             return result.to_dict("records")
 
@@ -121,7 +119,9 @@ def register_callbacks() -> None:
             df.to_parquet(VibesterConfig.path_db)
 
             # Send virtual files to generator
-            output_filename = f"output_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pdf"
+            directories = sorted(list(df_virtual["directory"].unique()))
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            output_filename = f"output_{'_'.join(directories)}_{timestamp}_.pdf"
             generate(df=df_virtual, filename=output_filename)
 
             # Return successful message on the page

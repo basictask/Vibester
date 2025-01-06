@@ -43,6 +43,7 @@ class VibesterConfig:
     grid = True
     crop_marks = True
     font = "Arial"
+    max_line_width = 22
 
     # Other settings
     hash_length = 30

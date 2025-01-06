@@ -1,33 +1,30 @@
+import os
 import html
+from config import VibesterConfig
 from typing import List, Iterable
 
 
-def line_break_text(s: str) -> List[str]:
+def line_break_text(text: str, max_width: int = VibesterConfig.max_line_width) -> List[str]:
     """
-    Line break the artist and title so they (hopefully) fit on a card. This is a
-    hack based on string lengths, but it's good enough for most cases.
+    Distributes text into lines with the most even length distribution
+    while ensuring no line exceeds max_width.
     """
-    if len(s) < 24:
-        return [s]
+    n_lines = (len(text) // max_width) + 1
+    lines = [[] for _ in range(n_lines)]
+    tokens = text.split()
 
-    words = s.split(" ")
-    char_count = sum(len(word) for word in words)
+    for token in tokens:
+        for i in range(len(lines)):
+            if len(" ".join(lines[i] + [token])) <= max_width:
+                lines[i].append(token)
+                break
 
-    # The starting situation is everything on the first line. We'll try out
-    # every possible line break and pick the one with the most even distribution
-    # (by characters in the string, not true text width).
-    top, bot = " ".join(words), ""
-    diff = char_count
+    result = []
+    for line in lines:
+        if len(line) > 0:
+            result.append(" ".join(line))
 
-    # Try line-breaking between every word.
-    for i in range(1, len(words) - 1):
-        w1, w2 = words[:i], words[i:]
-        t, b = " ".join(w1), " ".join(w2)
-        d = abs(len(t) - len(b))
-        if d < diff:
-            top, bot, diff = t, b, d
-
-    return [top, bot]
+    return result
 
 
 def render_text_svg(x_mm: float, y_mm: float, s: str, class_: str) -> Iterable[str]:
@@ -44,3 +41,25 @@ def render_text_svg(x_mm: float, y_mm: float, s: str, class_: str) -> Iterable[s
             f'<text x="{x_mm}" y="{y_mm + dy_mm}" text-anchor="middle" '
             f'class="{class_}">{html.escape(line)}</text>'
         )
+
+
+def format_str_metadata(text: str) -> str:
+    """
+    Sets the first letter to capital and the rest to lowercase inside a piece of text.
+    """
+    result = []
+    for token in text.split():
+        if token.isupper():
+            token = token.lower().capitalize()
+        result.append(token)
+    if len(result) > 0:
+        return " ".join(result)
+    return ""
+
+
+if __name__ == "__main__":
+    target_dir = "data/music/Ishkur"
+    for filename in os.listdir(target_dir):
+        print(filename)
+        print("\n".join(line_break_text(filename)))
+        print("------------", "\n")

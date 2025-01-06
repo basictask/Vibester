@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import hashlib
 import requests
 import acoustid
@@ -248,4 +249,5 @@ def get_metadata(filepath: str) -> Dict[str, str]:
     metadata["year"] = infer_year(s=str(metadata["year"]))
 
     print(f"{','.join([str(metadata[x]) for x in metadata.keys()])}")
+    time.sleep(0.34)  # At most 3 requests per second
     return metadata
