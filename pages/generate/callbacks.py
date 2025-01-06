@@ -1,5 +1,4 @@
 import os
-import time
 import datetime
 import pandas as pd
 from loader import load_db
@@ -38,7 +37,7 @@ def register_callbacks() -> None:
                         new_row = pd.DataFrame(
                             df_db[df_db["filename"] == filename]
                         ).drop_duplicates(keep="first", subset="filename")
-                        new_row["directory"] = root  # Add directory column
+                        new_row["directory"] = str(os.path.basename(root))  # Add directory column
 
                     elif is_music_file(filename) and filename not in df_db["filename"].values:
                         music_metadata = get_metadata(filepath=filepath)
@@ -53,7 +52,7 @@ def register_callbacks() -> None:
                                 "year": [music_metadata.get("year", None)],
                                 "genre": [music_metadata.get("genre", None)],
                                 "saved": [False],
-                                "hash": [calculate_hash(filename)],
+                                "hash": [None],
                                 "directory": [os.path.basename(root)],
                             }
                         )
@@ -62,7 +61,6 @@ def register_callbacks() -> None:
                         continue
 
                     result = pd.concat([result, new_row], ignore_index=True)
-                    time.sleep(0.34)  # At most 3 requests per second
 
             return result.to_dict("records")
 
@@ -97,19 +95,33 @@ def register_callbacks() -> None:
         try:
             # Set up the dataframes
             df = pd.DataFrame(row_data)
+            df.drop_duplicates(inplace=True)
             df_virtual = pd.DataFrame(row_data_virtual)
-            df_virtual.dropna(inplace=True, subset=["artist", "title", "year"])  # Rows must have these tags
-            
+            df_virtual.drop_duplicates(inplace=True)
+            df_virtual.dropna(inplace=True, subset=["filename", "artist", "title", "year"])  # Rows must have these tags
+            df_virtual["hash"] = [
+                calculate_hash(f"{artist}{title}{year}") for artist, title, year in zip(
+                    df_virtual["artist"], df_virtual["title"], df_virtual["year"]
+                )
+            ]
+
             # Mark saved files
-            filenames_to_mark = df_virtual["filename"].unique()
-            mask = df["filename"].isin(filenames_to_mark) & ~df["saved"]
+            filenames = df_virtual["filename"]
+            mask = df["filename"].isin(filenames)
+
+            # Update the columns in the basic DataFrame
+            df = df.merge(df_virtual[["filename", "hash"]], on="filename", how="left", suffixes=('', "_new"))  # Merge
+            df["hash"] = df["hash_new"].combine_first(df["hash"])  # Prioritize the new values
+            df.drop(columns=["hash_new"], inplace=True)  # Clean up
             df.loc[mask, "saved"] = True
 
             # Save current Dataframe to parquet
             df.to_parquet(VibesterConfig.path_db)
 
             # Send virtual files to generator
-            output_filename = f"output_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.pdf"
+            directories = sorted(list(df_virtual["directory"].unique()))
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            output_filename = f"output_{'_'.join(directories)}_{timestamp}_.pdf"
             generate(df=df_virtual, filename=output_filename)
 
             # Return successful message on the page

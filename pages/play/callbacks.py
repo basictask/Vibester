@@ -3,6 +3,7 @@ import base64
 import numpy as np
 import pandas as pd
 from loader import load_db
+from .utils import find_file
 from config import VibesterConfig
 from typing import List, Dict, Tuple
 from dash import Dash, Input, Output, State, callback, no_update, ctx
@@ -141,9 +142,12 @@ def register_callbacks(app: Dash) -> None:
                     if len(matched_items) > 0:
                         # If a match is found, start playing music
                         filename = matched_items.iloc[0, :]["filename"]
+                        # Find which folder the music is in
+                        filepath = find_file(root_dir=VibesterConfig.path_music, filename=filename)
+                        filepath = filepath.lstrip("data/")  # Strip this because of the music serving endpoint
                         return (
                             {"display": "none"},
-                            f"/music/{filename}",
+                            filepath,
                             VibesterConfig.default_style_button_big_gif,
                         )
 

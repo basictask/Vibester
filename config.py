@@ -33,16 +33,17 @@ class VibesterConfig:
     supported_formats = [".mp3", ".mp4", ".ogg", ".wav", ".wma", ".m4a"]
 
     # Fixed locations
-    path_db = "data/db.parquet"
+    path_db = "data/db/db.parquet"
     path_user = "data/user/user.parquet"
     path_output = "data/output"
-    path_music = "data/music/ishkur"
+    path_music = "data/music"
     path_cert = "data/cert"
 
     # PDF generation
     grid = True
     crop_marks = True
     font = "Arial"
+    max_line_width = 22
 
     # Other settings
     hash_length = 30

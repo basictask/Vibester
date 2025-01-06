@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import hashlib
 import requests
 import acoustid
@@ -41,8 +42,8 @@ def calculate_hash(input_string: str, hash_length: int = VibesterConfig.hash_len
     Calculates the hash of a given string.
     Used when encoding music into a QR code.
     """
-    utf_safe_string = str(input_string).encode("utf-8", errors="replace").decode("utf-8")
-    md5_hash = hashlib.md5(utf_safe_string.encode())
+    safe_string = os.fsdecode(input_string).encode("utf-8", errors="replace").decode("utf-8")
+    md5_hash = hashlib.md5(safe_string.encode())  # Hash the UTF-8 safe filename
     return md5_hash.hexdigest()[:hash_length]
 
 
@@ -248,4 +249,5 @@ def get_metadata(filepath: str) -> Dict[str, str]:
     metadata["year"] = infer_year(s=str(metadata["year"]))
 
     print(f"{','.join([str(metadata[x]) for x in metadata.keys()])}")
+    time.sleep(0.34)  # At most 3 requests per second
     return metadata

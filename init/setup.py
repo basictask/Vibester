@@ -1,0 +1,98 @@
+import os
+from typing import Optional
+from config import VibesterConfig
+from user import User, UserManager
+from pages.login.layout import get_layout as get_layout_login
+from flask_login import login_user, login_required, logout_user, LoginManager
+from flask import Flask, redirect, url_for, abort, send_file, send_from_directory
+
+
+def setup_routes(server: Flask, user_manager: UserManager) -> None:
+    """
+    Sets up routes for the flask server
+    """
+    @server.route("/login", methods=["GET", "POST"])
+    def login():
+        """
+        Flask login route.
+        """
+        from flask import request, render_template_string
+
+        if request.method == "POST":
+            username = request.form["username"]
+            password = request.form["password"]
+            user_exists = user_manager.user_exists(username=username)
+            password_correct = user_manager.verify_user(username=username, password=password)
+
+            if user_exists and password_correct:  # Log the user in
+                role = user_manager.get_role(username=username)
+                user = User(username=username, role=role)
+                login_user(user)
+                return redirect(url_for("/"))
+            else:
+                return "Invalid credentials", 401
+
+        # Simple login form
+        return render_template_string(get_layout_login())
+
+    @server.route("/logout")
+    @login_required
+    def logout():
+        """
+        Flask logout route.
+        Note: You can't actually log out once you are logged in.
+        """
+        logout_user()
+        return redirect(url_for("login"))
+
+    @server.route("/music/<filename>")
+    @login_required
+    def serve_music(filename: str):
+        """
+        File serving route from the root directory of the music folder.
+        """
+        return send_from_directory(VibesterConfig.path_music, filename)
+
+    @server.route('/music/<path:subpath>')
+    def serve_music_recursive(subpath: str):
+        """
+        File serving route from the recursive subdirectories of the music folder.
+        """
+        file_path = str(os.path.join(VibesterConfig.path_music, subpath))
+        if os.path.isfile(file_path):
+            return send_file(file_path, mimetype='audio/mpeg')
+        else:
+            abort(404)
+
+
+def setup_login(login_manager: LoginManager, user_manager: UserManager) -> None:
+    """
+    Sets up functions related to log in.
+    """
+    @login_manager.user_loader
+    def load_user(username: str) -> Optional[User]:
+        """
+        Registers logic that logs in a user onto the login manager.
+        """
+        if not user_manager.user_exists(username=username):
+            return None
+        else:
+            role = user_manager.get_role(username=username)
+            return User(username=username, role=role)
+
+
+def setup_folders(root_dir: str) -> None:
+    """
+    Creates the folders needed for the data loading.
+    """
+    abs_path_music = os.path.join(root_dir, VibesterConfig.path_music)
+    abs_path_output = os.path.join(root_dir, VibesterConfig.path_output)
+    abs_path_cert = os.path.join(root_dir, VibesterConfig.path_cert)
+    abs_path_db = os.path.join(root_dir, os.path.dirname(VibesterConfig.path_db))
+    abs_path_user = os.path.join(root_dir, os.path.dirname(VibesterConfig.path_user))
+
+    os.makedirs(abs_path_music, exist_ok=True)
+    os.makedirs(abs_path_output, exist_ok=True)
+    os.makedirs(abs_path_cert, exist_ok=True)
+    os.makedirs(abs_path_db, exist_ok=True)
+    os.makedirs(abs_path_user, exist_ok=True)
