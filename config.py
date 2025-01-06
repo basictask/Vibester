@@ -36,8 +36,7 @@ class VibesterConfig:
     path_db = "data/db/db.parquet"
     path_user = "data/user/user.parquet"
     path_output = "data/output"
-    path_music = "data/music/ishkur"
-    # path_music = "data/other/music_sample"
+    path_music = "data/music"
     path_cert = "data/cert"
 
     # PDF generation
