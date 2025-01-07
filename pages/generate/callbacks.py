@@ -121,7 +121,7 @@ def register_callbacks() -> None:
             # Send virtual files to generator
             directories = sorted(list(df_virtual["directory"].unique()))
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-            output_filename = f"output_{'_'.join(directories)}_{timestamp}_.pdf"
+            output_filename = f"output_{'_'.join(directories)}_{timestamp}.pdf"
             generate(df=df_virtual, filename=output_filename)
 
             # Return successful message on the page

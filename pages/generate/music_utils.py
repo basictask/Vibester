@@ -133,6 +133,7 @@ def query_musicbrainz(recording_id: str) -> Dict[str, Optional[str]]:
     except (KeyError, TypeError):
         genre = ""
 
+    time.sleep(0.34)  # At most 3 requests per second
     return {"title": title, "artist": artists, "year": year, "genre": genre}
 
 
@@ -143,7 +144,7 @@ def query_deezer(title: str, artist: str) -> Optional[Dict[str, str]]:
     """
     # Search for track
     search_url = "https://api.deezer.com/search"
-    params = {"q": f"track:\"{title}\" artist:\"{artist}\""}
+    params = {"q": f"track:\"{title}\" artist:\"{artist}\"".replace("?", "")}
     response = requests.get(search_url, params=params)
     response.raise_for_status()
     results = response.json()
@@ -225,9 +226,14 @@ def get_metadata(filepath: str) -> Dict[str, str]:
     """
     Creates a fingerprint from a musical track and creates its track ID.
     """
-    metadata = get_metadata_from_file(filepath=filepath)
+    metadata = get_metadata_from_file(filepath=filepath)  # Get metadata from IDv3 tags
 
-    if not metadata["artist"] or not metadata["title"]:
+    if metadata["artist"] and metadata["title"] and metadata["year"]:  # Everything encoded in IDv3 tags
+        metadata["year"] = infer_year(metadata["year"])
+        print(f"{','.join([str(metadata[x]) for x in metadata.keys()])}")
+        return metadata
+
+    if not metadata["artist"] or not metadata["title"]:  # Tags not encoded - fingerprinting
         recording_id = get_recording_id(filepath=filepath)
         if recording_id:
             metadata = query_musicbrainz(recording_id=recording_id)
@@ -235,7 +241,7 @@ def get_metadata(filepath: str) -> Dict[str, str]:
             metadata["artist"] = get_artist_from_filepath(filepath)
             metadata["title"] = get_title_from_filepath(filepath)
 
-    if metadata["title"] and metadata["artist"]:
+    if metadata["title"] and metadata["artist"]:  # Tags found by fingerprinting - query year
         year_mb = metadata.get("year", None)
         year_sp = query_spotify(title=metadata["title"], artist=metadata["artist"])
         year_dz = query_deezer(title=metadata["title"], artist=metadata["artist"])
@@ -249,5 +255,4 @@ def get_metadata(filepath: str) -> Dict[str, str]:
     metadata["year"] = infer_year(s=str(metadata["year"]))
 
     print(f"{','.join([str(metadata[x]) for x in metadata.keys()])}")
-    time.sleep(0.34)  # At most 3 requests per second
     return metadata
