@@ -1,5 +1,11 @@
 # Vibester
 
+## Branches
+
+* **Core**: The most basic functionality of Vibester that is best suited for home use (no security added to the application).
+* **Develop**: Development branch with the latest features. Might contain bugs.
+* **Main**: Most up-to-date and secure branch suited for deployment on a live server.
+
 ## Setup
 
 ### Environment
@@ -64,6 +70,21 @@ You can use this app to generate the QR codes with the year, similar to the game
 
 3. In case there is no match found for the musical fingerprint in any of the APIs, the song's artist and title will be inferred from the filename, provided the filename format is `artist - title.mp3` or similar. The delimiter is the `-` character surrounded by spaces.
 
+## Users
+
+This is a feature available on the `main`/`develop` branches only. The file `user.py` contains the User manager. You have to add users through this user manager manually to the applicaion. The passwords are being stored as hashes in a DataFrame.
+
+### Adding/removing users
+
+1. Make sure to generate a secret key for your users and store it in the `.env` file. 
+2. Add a new configuration that runs the `user.py` file with your `.env`.
+3. In the `__main__` call of the `user.py` file add in the operations you want to do in the user manager e.g. `add_user`, `remove_user` and so on. 
+4. Run the `__main__` and wait for the code to execute. Your app should now have these users added, you can log in to the application. 
+
+### User roles
+
+* **admin**: Can play, generate pdf and upload files to the server as well. 
+* **user**: Can only play. 
 
 ## Usage
 

@@ -4,15 +4,20 @@ import time
 import hashlib
 import requests
 import acoustid
+import discogs_client
 import musicbrainzngs
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 from decorators import robust
 from config import VibesterConfig
+from mutagen.easyid3 import EasyID3
 from typing import Optional, Dict, Union
 from pages.generate.spotify_token import SpotifyTokenGenerator
 
 spotify_token_generator = SpotifyTokenGenerator()
+discogs_client_inst = discogs_client.Client(
+    f"{os.getenv('APP_NAME')}/{os.getenv('APP_VERSION')}", user_token=os.getenv("API_KEY_DISCOGS")
+)
 
 
 def setup_musicbrainz_client() -> None:
@@ -196,6 +201,27 @@ def query_spotify(title: str, artist: str) -> Optional[str]:
     return None
 
 
+def get_song_release_date(title: str, artist: str) -> Optional[str]:
+    """
+    Search for the release date of a song on Discogs.
+    """
+    # Search for the artist and track title.
+    search_results = discogs_client_inst.search(title, artist=artist, type='release')
+
+    # Handle no results found.
+    if not search_results:
+        print(f"No Discogs release found for '{title}' by '{artist}'.")
+        return None
+
+    # Iterate through the results and find the matching release.
+    for release in search_results:
+        if release.title.lower() == title.lower() and release.artists[0].name.lower() == artist.lower():
+            return release.year
+
+    print(f"Could not find an exact Discogs match for '{title}' by '{artist}'.")
+    return None
+
+
 @robust
 def get_artist_from_filepath(filepath: str) -> Optional[str]:
     """
@@ -242,10 +268,22 @@ def get_metadata(filepath: str) -> Dict[str, str]:
             metadata["title"] = get_title_from_filepath(filepath)
 
     if metadata["title"] and metadata["artist"]:  # Tags found by fingerprinting - query year
-        year_mb = metadata.get("year", None)
-        year_sp = query_spotify(title=metadata["title"], artist=metadata["artist"])
-        year_dz = query_deezer(title=metadata["title"], artist=metadata["artist"])
-        year = find_smallest_year(year_mb, year_dz, year_sp)
+        year_mb, year_sp, year_dz, year_dc = None, None, None, None
+
+        if "musicbrainz" in VibesterConfig.metadata_sources:
+            year_mb = metadata.get("year", None)
+
+        if "spotify" in VibesterConfig.metadata_sources:
+            year_sp = query_spotify(title=metadata["title"], artist=metadata["artist"])
+
+        if "deezer" in VibesterConfig.metadata_sources:
+            year_dz = query_deezer(title=metadata["title"], artist=metadata["artist"])
+
+        if "discogs" in VibesterConfig.metadata_sources:
+            year_dc = query_deezer(title=metadata["title"], artist=metadata["artist"])
+
+        year = find_smallest_year(year_mb, year_dz, year_sp, year_dc)
+
         if year:
             metadata["year"] = year
     else:
@@ -256,3 +294,36 @@ def get_metadata(filepath: str) -> Dict[str, str]:
 
     print(f"{','.join([str(metadata[x]) for x in metadata.keys()])}")
     return metadata
+
+
+@robust
+def write_id3_tags(filepath: str, artist: str, title: str, year: str) -> None:
+    """
+    Writes ID3 tags to an MP3 file.
+    """
+    if not artist or not title or not year:  # Only write if all 3 necessary tags are present
+        return None
+
+    tags = EasyID3(filepath)
+    tags["artist"] = artist
+    tags["title"] = title
+    tags["date"] = str(year)
+    tags.save()
+    print(f"Tags updated successfully for {filepath}.")
+
+
+if __name__ == "__main__":
+    # This can be used as an automtic tagger
+    # Usage: choose a target folder, and it will be traversed recursively. Music inside the folder will be tagged if
+    # it is missing using fingerprinting then API queries.
+    target_dir = "C:\\Users\\danie\\Music\\Hungarian"
+    for root, _, files in os.walk(target_dir):  # Traverse target folder recursively
+        for fname in files:
+            filepath_tag = os.path.abspath(str(os.path.join(root, fname)))
+            metadata_query = get_metadata(filepath=filepath_tag)
+            write_id3_tags(
+                filepath=filepath_tag,
+                artist=metadata_query["artist"],
+                title=metadata_query["title"],
+                year=metadata_query["year"]
+            )

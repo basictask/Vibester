@@ -31,6 +31,7 @@ class VibesterConfig:
     # Fixed lists
     generate_table_cols = ["filename", "artist", "title", "year", "saved", "hash", "directory"]
     supported_formats = [".mp3", ".mp4", ".ogg", ".wav", ".wma", ".m4a"]
+    metadata_sources = ["musicbrainz", "spotify", "deezer", "discogs"]
 
     # Fixed locations
     path_db = "data/db/db.parquet"
