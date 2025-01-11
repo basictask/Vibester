@@ -4,6 +4,7 @@ import time
 import hashlib
 import requests
 import acoustid
+import pandas as pd
 import discogs_client
 import musicbrainzngs
 from mutagen.mp3 import MP3
@@ -11,6 +12,7 @@ from mutagen.id3 import ID3
 from decorators import robust
 from config import VibesterConfig
 from mutagen.easyid3 import EasyID3
+from pages.play.utils import find_file
 from typing import Optional, Dict, Union
 from pages.generate.spotify_token import SpotifyTokenGenerator
 
@@ -310,6 +312,51 @@ def write_id3_tags(filepath: str, artist: str, title: str, year: str) -> None:
     tags["date"] = str(year)
     tags.save()
     print(f"Tags updated successfully for {filepath}.")
+
+
+@robust
+def has_required_tags(filepath: str) -> bool:
+    """
+    Checks if an MP3 file contains the tags artist, title, and release date.
+    """
+    try:
+        # Load the MP3 file with EasyID3
+        audio = EasyID3(filepath)
+        required_tags = ["artist", "title", "date"]  # EasyID3 tags
+        return all(tag in audio for tag in required_tags)
+    except Exception as e:
+        print(f"Error while reading tags from {filepath}:\n{e}")
+        return False
+
+
+def write_id3_tags_batch(df: pd.DataFrame) -> None:
+    """
+    Writes ID3 tags to a DataFrame of MP3 files.
+    The dataframe must have columns ["filename", "artist", "title", "year"].
+    """
+    if df.empty or len(df) == 0:
+        return None
+
+    assert "filename" in df.columns, "Batch MP3 tag write error, column 'filename' not found."
+    assert "artist" in df.columns, "Batch MP3 tag write error, column 'artist' not found."
+    assert "title" in df.columns, "Batch MP3 tag write error, column 'title' not found."
+    assert "year" in df.columns, "Batch MP3 tag write error, column 'year' not found."
+
+    for i in df.index:
+        if (
+            df.loc[i, "filename"] is not None
+            and df.loc[i, "artist"] is not None
+            and df.loc[i, "title"] is not None
+            and df.loc[i, "year"] is not None
+        ):
+            filepath = find_file(root_dir=VibesterConfig.path_music, filename=df.loc[i, "filename"])
+            if not has_required_tags(filepath=filepath):
+                write_id3_tags(  # Save ID3 tags from the table to the MP3 file
+                    filepath=filepath,
+                    artist=df.loc[i, "artist"],
+                    title=df.loc[i, "title"],
+                    year=df.loc[i, "year"],
+                )
 
 
 if __name__ == "__main__":
