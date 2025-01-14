@@ -8,14 +8,14 @@ def merge_dbs(df1_path: str, df2_path: str, target_path: str) -> None:
     Merges two databases and outputs the result
     """
     for path in [df1_path, df2_path, target_path]:
-        assert path.endswith(".parquet"), f"Path must end with .parquet, got {path}"
+        assert path.endswith(".pkl"), f"Path must end with .pkl, got {path}"
 
     for path in [df1_path, df2_path]:
         assert os.path.exists(path), f"File {path} does not exist"
 
     # Read dataframes
-    df1 = pd.read_parquet(df1_path)
-    df2 = pd.read_parquet(df2_path)
+    df1 = pd.read_pickle(df1_path)
+    df2 = pd.read_pickle(df2_path)
 
     # Concatenate dataframes along index
     merged_df = pd.concat([df1, df2], ignore_index=True)
@@ -28,7 +28,7 @@ def merge_dbs(df1_path: str, df2_path: str, target_path: str) -> None:
     merged_df = merged_df.drop_duplicates(subset=["filename", "artist", "title", "year", "hash"], keep="first")
 
     # Save the merged dataframe to the target path
-    merged_df.to_parquet(target_path)
+    merged_df.to_pickle(target_path)
 
 
 if __name__ == "__main__":

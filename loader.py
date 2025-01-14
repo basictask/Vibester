@@ -11,5 +11,6 @@ def load_db() -> pd.DataFrame:
     """
     if not os.path.exists(VibesterConfig.path_db):
         df = pd.DataFrame(columns=VibesterConfig.generate_table_cols)
-        df.to_parquet(VibesterConfig.path_db)
-    return pd.read_parquet(VibesterConfig.path_db)
+        df.to_pickle(VibesterConfig.path_db)
+        print(f"Created {VibesterConfig.path_db}")
+    return pd.read_pickle(VibesterConfig.path_db)

@@ -32,10 +32,11 @@ class VibesterConfig:
     generate_table_cols = ["filename", "artist", "title", "year", "saved", "hash", "directory"]
     supported_formats = [".mp3", ".mp4", ".ogg", ".wav", ".wma", ".m4a"]
     metadata_sources = ["musicbrainz", "spotify", "deezer", "discogs"]
+    allowed_roles = ["admin", "user"]
 
     # Fixed locations
-    path_db = "data/db/db.parquet"
-    path_user = "data/user/user.parquet"
+    path_db = "data/db/db.pkl"
+    path_user = "data/user/user.pkl"
     path_output = "data/output"
     path_music = "data/music"
     path_cert = "data/cert"

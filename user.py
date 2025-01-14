@@ -17,7 +17,7 @@ class User(UserMixin):
 
 class UserManager:
     """
-    Manages user data stored in a Parquet file with encrypted passwords.
+    Manages user data stored in a Pickle file with encrypted passwords.
     """
     def __init__(self, filepath: str, key: str):
         """
@@ -32,23 +32,24 @@ class UserManager:
 
     def _load_users(self) -> pd.DataFrame:
         """
-        Loads user data from the Parquet file or initializes an empty DataFrame if the file doesn't exist.
+        Loads user data from the Pickle file or initializes an empty DataFrame if the file doesn't exist.
         """
         if os.path.exists(self.filepath):
-            return pd.read_parquet(self.filepath)  # Load users from Parquet file
+            return pd.read_pickle(self.filepath)  # Load users from Pickle file
         else:
             return pd.DataFrame(columns=["username", "password", "role"])  # Create empty DataFrame
 
     def _save_users(self) -> None:
         """
-        Saves the current user data to the Parquet file.
+        Saves the current user data to the Pickle file.
         """
-        self.users.to_parquet(self.filepath, index=False)  # Save users to Parquet file
+        self.users.to_pickle(self.filepath)  # Save users to Pickle file
 
     def add_user(self, username: str, password: str, role: str = "player") -> None:
         """
-        Encrypts and adds a new user to the Parquet file if the username does not already exist.
+        Encrypts and adds a new user to the Pickle file if the username does not already exist.
         """
+        assert role in VibesterConfig.allowed_roles, f"Role must be one of {VibesterConfig.allowed_roles}"
         encrypted_password = self.cipher.encrypt(password.encode('utf-8')).decode('utf-8')  # Encrypt password
         if username in self.users["username"].values:
             print(f"Error: User {username} already exists.")
@@ -64,7 +65,7 @@ class UserManager:
 
     def remove_user(self, username: str) -> bool:
         """
-        Removes a user by username from the Parquet file if they exist.
+        Removes a user by username from the Pickle file if they exist.
         """
         if self.user_exists(username=username):
             self.users = self.users[self.users["username"] != username]
@@ -89,7 +90,7 @@ class UserManager:
 
     def user_exists(self, username: str) -> bool:
         """
-        Returns whether a user exists in the Parquet file or not.
+        Returns whether a user exists in the Pickle file or not.
         """
         return username in self.users["username"].values
 
@@ -105,3 +106,12 @@ class UserManager:
 if __name__ == "__main__":
     # Sample instantiation for testing
     user_manager = UserManager(filepath=VibesterConfig.path_user, key=os.getenv("APP_USERS_ENCRYPTION_KEY"))
+    new_username = input("Enter new username: ")
+    new_password = input("Enter new password: ")
+    new_role = input("Enter new role: ")
+
+    user_manager.add_user(
+        username=new_username,
+        password=new_password,
+        role=new_role,
+    )

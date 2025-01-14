@@ -115,8 +115,8 @@ def register_callbacks() -> None:
             df.drop(columns=["hash_new"], inplace=True)  # Clean up
             df.loc[mask, "saved"] = True
 
-            # Save current Dataframe to parquet
-            df.to_parquet(VibesterConfig.path_db)
+            # Save current Dataframe to pickle
+            df.to_pickle(VibesterConfig.path_db)
 
             # Send virtual files to generator
             directories = sorted(list(df_virtual["directory"].unique()))
