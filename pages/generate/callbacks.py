@@ -1,4 +1,5 @@
 import os
+import re
 import datetime
 import pandas as pd
 from loader import load_db
@@ -119,7 +120,7 @@ def register_callbacks() -> None:
             df.to_pickle(VibesterConfig.path_db)
 
             # Send virtual files to generator
-            directories = sorted(list(df_virtual["directory"].unique()))
+            directories = sorted([re.sub(r'[^a-zA-Z0-9]', '', x) for x in df_virtual["directory"].unique()])
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
             output_filename = f"output_{'_'.join(directories)}_{timestamp}.pdf"
             generate(df=df_virtual, filename=output_filename)
