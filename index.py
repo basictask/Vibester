@@ -1,5 +1,5 @@
 import os
-import init
+import utils
 import dash
 from flask import Flask
 import dash_uploader as du
@@ -7,7 +7,7 @@ from flask_login import LoginManager
 
 from user import UserManager
 from config import VibesterConfig
-from init.setup import setup_routes, setup_login, setup_folders
+from utils.setup import setup_routes, setup_login, setup_folders
 
 from pages.generate.music_utils import setup_musicbrainz_client
 from pages.base.layout import get_layout as get_layout_base
@@ -18,7 +18,7 @@ from pages.generate.callbacks import register_callbacks as register_callbacks_ge
 
 
 # Load dotenv
-init.load_env_file(filepath=".env")
+utils.load_env_file(filepath=".env")
 
 # Flask setup
 server = Flask(__name__)
@@ -36,7 +36,6 @@ user_manager = UserManager(filepath=VibesterConfig.path_user, key=os.getenv("APP
 
 # Dash Layout
 app.layout = get_layout_base()
-
 
 # Callback registration from all the pages
 register_callbacks_base(user_manager=user_manager)
