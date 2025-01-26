@@ -9,7 +9,7 @@ from user import UserManager
 from config import VibesterConfig
 from utils.setup import setup_routes, setup_login, setup_folders
 
-from pages.generate.music_utils import setup_musicbrainz_client
+from utils.setup import setup_musicbrainz_client
 from pages.base.layout import get_layout as get_layout_base
 from pages.base.callbacks import register_callbacks as register_callbacks_base
 from pages.play.callbacks import register_callbacks as register_callbacks_play

@@ -1,4 +1,5 @@
 import os
+import musicbrainzngs
 from typing import Optional
 from config import VibesterConfig
 from user import User, UserManager
@@ -100,3 +101,15 @@ def setup_folders(root_dir: str) -> None:
     setup_folder(root_dir=root_dir, dir_to_create=VibesterConfig.path_cert)
     setup_folder(root_dir=root_dir, dir_to_create=os.path.dirname(VibesterConfig.path_db))
     setup_folder(root_dir=root_dir, dir_to_create=os.path.dirname(VibesterConfig.path_user))
+
+
+def setup_musicbrainz_client() -> None:
+    """
+    Configures the user agent for the MusicBrainz client.
+    The data is read from the .env file. Please contact Daniel for this.
+    """
+    musicbrainzngs.set_useragent(
+        app=os.getenv("APP_NAME"),
+        version=os.getenv("APP_VERSION"),
+        contact=os.getenv("APP_CONTACT"),
+    )

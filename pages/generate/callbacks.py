@@ -7,7 +7,7 @@ from config import VibesterConfig
 from typing import Dict, List, Any
 from generator.generate import generate
 from dash import Input, Output, State, dcc, callback, ctx, no_update
-from pages.generate.music_utils import is_music_file, calculate_hash, get_metadata, write_id3_tags_batch
+from pages.generate.utils import is_music_file, calculate_hash, get_metadata, write_id3_tags_batch
 
 
 def register_callbacks() -> None:

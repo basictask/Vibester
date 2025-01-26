@@ -22,18 +22,6 @@ discogs_client_inst = discogs_client.Client(
 )
 
 
-def setup_musicbrainz_client() -> None:
-    """
-    Configures the user agent for the MusicBrainz client.
-    The data is read from the .env file. Please contact Daniel for this.
-    """
-    musicbrainzngs.set_useragent(
-        app=os.getenv("APP_NAME"),
-        version=os.getenv("APP_VERSION"),
-        contact=os.getenv("APP_CONTACT"),
-    )
-
-
 def is_music_file(filename: str) -> bool:
     """
     Decides if a single file is musical based on the extension.

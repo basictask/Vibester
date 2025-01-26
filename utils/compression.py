@@ -1,6 +1,7 @@
 import os
 from mutagen.mp3 import MP3
 from pydub import AudioSegment
+from pages.generate.utils import get_metadata_from_file, write_id3_tags
 
 
 def get_bitrate(file_path: str) -> int:
@@ -15,7 +16,8 @@ def process_mp3(input_file: str, output_file: str, target_bitrate: int) -> None:
     """
     Converts an MP3 file to the target bitrate if the current bitrate is higher.
     """
-    current_bitrate = get_bitrate(file_path=input_file)
+    metadata = get_metadata_from_file(file_path=input_file)  # Read artist, title, year if available
+    current_bitrate = get_bitrate(file_path=input_file)  # Read bitrate
     print(f"Processing '{input_file}' (Current bitrate: {current_bitrate} kbps)")
 
     if current_bitrate <= target_bitrate:
@@ -28,6 +30,9 @@ def process_mp3(input_file: str, output_file: str, target_bitrate: int) -> None:
         audio = AudioSegment.from_file(input_file, format="mp3")
         audio.export(output_file, format="mp3", bitrate=f"{target_bitrate}k")
         print(f"Conversion complete: '{output_file}'")
+
+    # Write artist, title, year (the bitrate conversion removes tags)
+    write_id3_tags(file_path=output_file, artist=metadata['artist'], title=metadata['title'], year=metadata['year'])
 
 
 def process_folder(target_folder: str, output_folder: str, target_bitrate: int) -> None:
@@ -48,8 +53,10 @@ def process_folder(target_folder: str, output_folder: str, target_bitrate: int) 
 
 # Example usage
 if __name__ == "__main__":
+    # Compression works by changing the bitrate of a file to a target bitrate.
+    # If the source bitrate is lower than the target the file will be left unchanged.
     target = "data/other/music_sample"  # Replace with the folder to scan for MP3 files
-    bitrate = 192
+    bitrate = 192  # Target bitrate
 
     process_folder(
         target_folder=target,
