@@ -21,7 +21,7 @@ def register_callbacks(app: Dash) -> None:
         if pathname != "/play":
             return no_update
 
-        df_db = load_db()  # Reads DB parquet file from the disk or creates it if it does not exist
+        df_db = load_db()  # Reads DB pickle file from the disk or creates it if it does not exist
         return df_db.to_dict("records")
 
     app.clientside_callback(

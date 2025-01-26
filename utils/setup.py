@@ -1,4 +1,5 @@
 import os
+import musicbrainzngs
 from typing import Optional
 from config import VibesterConfig
 from user import User, UserManager
@@ -9,7 +10,7 @@ from flask import Flask, redirect, url_for, abort, send_file, send_from_director
 
 def setup_routes(server: Flask, user_manager: UserManager) -> None:
     """
-    Sets up routes for the flask server
+    Sets up routes for the flask server.
     """
     @server.route("/login", methods=["GET", "POST"])
     def login():
@@ -81,18 +82,34 @@ def setup_login(login_manager: LoginManager, user_manager: UserManager) -> None:
             return User(username=username, role=role)
 
 
+def setup_folder(root_dir: str, dir_to_create: str) -> None:
+    """
+    Creates a single folder needed for the data loading.
+    """
+    abs_path_dir = os.path.join(root_dir, dir_to_create)
+    if not os.path.exists(abs_path_dir):
+        print(f"Successfully created folder {abs_path_dir}")
+        os.makedirs(abs_path_dir, exist_ok=True)
+
+
 def setup_folders(root_dir: str) -> None:
     """
     Creates the folders needed for the data loading.
     """
-    abs_path_music = os.path.join(root_dir, VibesterConfig.path_music)
-    abs_path_output = os.path.join(root_dir, VibesterConfig.path_output)
-    abs_path_cert = os.path.join(root_dir, VibesterConfig.path_cert)
-    abs_path_db = os.path.join(root_dir, os.path.dirname(VibesterConfig.path_db))
-    abs_path_user = os.path.join(root_dir, os.path.dirname(VibesterConfig.path_user))
+    setup_folder(root_dir=root_dir, dir_to_create=VibesterConfig.path_music)
+    setup_folder(root_dir=root_dir, dir_to_create=VibesterConfig.path_output)
+    setup_folder(root_dir=root_dir, dir_to_create=VibesterConfig.path_cert)
+    setup_folder(root_dir=root_dir, dir_to_create=os.path.dirname(VibesterConfig.path_db))
+    setup_folder(root_dir=root_dir, dir_to_create=os.path.dirname(VibesterConfig.path_user))
 
-    os.makedirs(abs_path_music, exist_ok=True)
-    os.makedirs(abs_path_output, exist_ok=True)
-    os.makedirs(abs_path_cert, exist_ok=True)
-    os.makedirs(abs_path_db, exist_ok=True)
-    os.makedirs(abs_path_user, exist_ok=True)
+
+def setup_musicbrainz_client() -> None:
+    """
+    Configures the user agent for the MusicBrainz client.
+    The data is read from the .env file. Please contact Daniel for this.
+    """
+    musicbrainzngs.set_useragent(
+        app=os.getenv("APP_NAME"),
+        version=os.getenv("APP_VERSION"),
+        contact=os.getenv("APP_CONTACT"),
+    )

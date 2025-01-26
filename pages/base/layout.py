@@ -22,10 +22,15 @@ def get_layout() -> dmc.MantineProvider:
                                 )
                             ]
                         ),
-                        html.Div(
-                            id={"name": "content", "type": "div", "page": "index"},
+                        dmc.GridCol(
+                            span=12,
                             children=[
-                                dmc.Text("Log in to continue")
+                                html.Div(
+                                    id={"name": "content", "type": "div", "page": "index"},
+                                    children=[
+                                        dmc.Text("Log in to continue")
+                                    ]
+                                )
                             ]
                         )
                     ]

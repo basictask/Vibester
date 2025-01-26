@@ -13,7 +13,7 @@ from reportlab.graphics import renderPDF
 
 def get_tracks(df: pd.DataFrame) -> List[Track]:
     """
-    Takes a pandas DataFrame and returns a list of Track objects
+    Takes a pandas DataFrame and returns a list of Track objects.
     """
     # Sort the dataframe by filename
     df.sort_values(by=["year", "artist", "title"], ascending=True, inplace=True)

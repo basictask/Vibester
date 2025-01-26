@@ -1,4 +1,5 @@
 import os
+import re
 import datetime
 import pandas as pd
 from loader import load_db
@@ -6,7 +7,7 @@ from config import VibesterConfig
 from typing import Dict, List, Any
 from generator.generate import generate
 from dash import Input, Output, State, dcc, callback, ctx, no_update
-from pages.generate.music_utils import is_music_file, calculate_hash, get_metadata
+from pages.generate.utils import is_music_file, calculate_hash, get_metadata, write_id3_tags_batch
 
 
 def register_callbacks() -> None:
@@ -115,14 +116,15 @@ def register_callbacks() -> None:
             df.drop(columns=["hash_new"], inplace=True)  # Clean up
             df.loc[mask, "saved"] = True
 
-            # Save current Dataframe to parquet
-            df.to_parquet(VibesterConfig.path_db)
+            # Save current Dataframe to pickle
+            df.to_pickle(VibesterConfig.path_db)
 
             # Send virtual files to generator
-            directories = sorted(list(df_virtual["directory"].unique()))
+            directories = sorted([re.sub(r'[^a-zA-Z0-9]', '', x) for x in df_virtual["directory"].unique()])
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-            output_filename = f"output_{'_'.join(directories)}_{timestamp}_.pdf"
+            output_filename = f"output_{'_'.join(directories)}_{timestamp}.pdf"
             generate(df=df_virtual, filename=output_filename)
+            write_id3_tags_batch(df=df_virtual)
 
             # Return successful message on the page
             return (
