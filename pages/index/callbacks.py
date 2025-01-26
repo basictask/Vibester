@@ -3,7 +3,7 @@ from config import VibesterConfig
 from dash import Input, Output, callback, no_update
 
 
-def register_callbacks():
+def register_callbacks() -> None:
     @callback(
         Output({"name": "url", "type": "location", "page": "index"}, "pathname"),
         [

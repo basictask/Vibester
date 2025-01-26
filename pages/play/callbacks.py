@@ -3,12 +3,13 @@ import base64
 import numpy as np
 import pandas as pd
 from loader import load_db
+from .utils import find_file
 from config import VibesterConfig
 from typing import List, Dict, Tuple
 from dash import Dash, Input, Output, State, callback, no_update, ctx
 
 
-def register_callbacks(app: Dash):
+def register_callbacks(app: Dash) -> None:
     @callback(
         Output({"name": "music_store", "type": "store", "page": "play"}, "data"),
         Input({"name": "url", "type": "location", "page": "play"}, "pathname"),
@@ -20,7 +21,7 @@ def register_callbacks(app: Dash):
         if pathname != "/play":
             return no_update
 
-        df_db = load_db()  # Reads DB parquet file from the disk or creates it if it does not exist
+        df_db = load_db()  # Reads DB pickle file from the disk or creates it if it does not exist
         return df_db.to_dict("records")
 
     app.clientside_callback(
@@ -61,8 +62,10 @@ def register_callbacks(app: Dash):
                 }
                 video.style.display = "none";
             }
+            return "";
         }
         """,
+        Output({"name": "dummy", "type": "store", "page": "play"}, "data"),
         Input({"name": "url", "type": "location", "page": "play"}, "pathname")
     )
 
@@ -139,12 +142,13 @@ def register_callbacks(app: Dash):
                     if len(matched_items) > 0:
                         # If a match is found, start playing music
                         filename = matched_items.iloc[0, :]["filename"]
+                        # Find which folder the music is in
+                        filepath = find_file(root_dir=VibesterConfig.path_music, filename=filename)
+                        filepath = filepath.lstrip("data/")  # Strip this because of the music serving endpoint
                         return (
                             {"display": "none"},
-                            f"/music/{filename}",
+                            filepath,
                             VibesterConfig.default_style_button_big_gif,
-
-
                         )
 
                 return no_update, no_update, no_update

@@ -14,6 +14,11 @@ class VibesterConfig:
                 "ion:musical-notes",
                 "ion:sparkles",
                 "ion:cloud-upload-sharp"
+            ],
+            "role": [  # Roles allowed to view the page
+                ("admin", "user"),
+                "admin",
+                "admin",
             ]
         }
     )
@@ -24,19 +29,23 @@ class VibesterConfig:
     mantine_gradient_red = {"from": "red", "to": "yellow", "deg": 45},
 
     # Fixed lists
-    generate_table_cols = ["filename", "artist", "title", "year", "genre", "saved", "hash"]
+    generate_table_cols = ["filename", "artist", "title", "year", "saved", "hash", "directory"]
     supported_formats = [".mp3", ".mp4", ".ogg", ".wav", ".wma", ".m4a"]
+    metadata_sources = ["musicbrainz", "spotify", "deezer", "discogs"]
+    allowed_roles = ["admin", "user"]
 
     # Fixed locations
-    path_db = "data/db.parquet"
-    path_music = "data/music"
+    path_db = "data/db/db.pkl"
+    path_user = "data/user/user.pkl"
     path_output = "data/output"
-    path_cert = "cert"
+    path_music = "data/music"
+    path_cert = "data/cert"
 
     # PDF generation
     grid = True
     crop_marks = True
     font = "Arial"
+    max_line_width = 22
 
     # Other settings
     hash_length = 30
@@ -69,4 +78,3 @@ class VibesterConfig:
         "background-repeat": "no-repeat",
         "background-position": "center"
     }
-

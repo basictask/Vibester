@@ -1,6 +1,3 @@
-"""
-Decorators implementation used across the software
-"""
 from functools import wraps
 from typing import Any, Callable
 

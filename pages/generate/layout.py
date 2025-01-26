@@ -114,6 +114,7 @@ def get_layout() -> html.Div:
                             )
                         ]
                     ),
+                    dcc.Download(id={"name": "download", "type": "download", "page": "generate"}),
                     dcc.Store(id={"name": "music_store", "type": "store", "page": "generate"}, data=[])
                 ]
             )

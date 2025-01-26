@@ -2,17 +2,19 @@ import qrcode
 from typing import Dict, Tuple
 from xml.etree import ElementTree
 from qrcode.image.svg import SvgPathImage
+from generator.generator_utils import format_str_metadata
 
 
 class Track:
     def __init__(self, track: Dict):
-        self.title = track.get("title", "")
-        self.artist = track.get("artist", "")
+        """
+        Sets up a Track object for further use in generating the printable PDF.
+        """
+        self.year = int(track.get("year", ""))
+        self.title = format_str_metadata(track.get("title", ""))
+        self.artist = format_str_metadata(track.get("artist", ""))
         self.genre = track.get("genre", "")
         self.hash = track.get("hash", "")
-
-        if track.get("year", None):
-            self.year = int(track.get("year"))
 
     def qr_svg(self) -> Tuple[str, int]:
         """

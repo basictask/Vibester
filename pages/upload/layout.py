@@ -1,6 +1,7 @@
-from dash import html, dcc
+import uuid
+from dash import html
+import dash_uploader as du
 from config import VibesterConfig
-from dash_iconify import DashIconify
 import dash_mantine_components as dmc
 from components.loading import loading
 
@@ -32,37 +33,14 @@ def get_layout() -> html.Div:
                                     name="loading",
                                     page="upload",
                                     children=[
-                                        dcc.Upload(
+                                        du.Upload(
                                             id={"name": "upload", "type": "upload", "page": "upload"},
-                                            children=DashIconify(
-                                                icon="ion:rocket",
-                                                width=100,
-                                            ),
-                                            style={
-                                                "display": "flex",
-                                                "justifyContent": "center",
-                                                "alignItems": "center",
-                                                "width": f"{VibesterConfig.ui_scale}px",
-                                                "height": f"{VibesterConfig.ui_scale}px",
-                                                "lineHeight": "60px",
-                                                "borderWidth": "5px",
-                                                "borderStyle": "dashed",
-                                                "borderRadius": "5px",
-                                                "textAlign": "center",
-                                            },
-                                            multiple=True,
+                                            max_files=500,
+                                            max_file_size=40,
+                                            filetypes=[x.lstrip(".") for x in VibesterConfig.supported_formats],
+                                            upload_id=str(uuid.uuid1()),  # Unique session id
                                         )
                                     ]
-                                )
-                            )
-                        ]
-                    ),
-                    dmc.GridCol(
-                        span=12,
-                        children=[
-                            dmc.Center(
-                                html.Div(
-                                    id={"name": "uploaded_files", "type": "div", "page": "upload"},
                                 )
                             )
                         ]
