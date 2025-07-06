@@ -6,7 +6,7 @@ scratchpad.
 .env
 data/music
 data/backup
-data/
+data/other
 scratchpad.py
 cert
 
